@@ -5,3 +5,92 @@
     font-size: 80%;
     color: #dc3545;
 }
+
+.nav-link.dropdown-toggle::after {
+    display: none;
+}
+
+/* Styles de base pour la structure */
+.editor-js-container {
+    padding: 20px;
+    background-color: #f7f7f7;
+}
+
+.codex-editor {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ce-block {
+    margin-bottom: 20px;
+}
+
+.ce-header .h4 {
+    font-weight: bold;
+}
+
+.widget {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.widget:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.widget-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-title {
+    font-size: 16px;
+}
+
+.widget-subtitle {
+    font-size: 12px;
+    color: #666;
+}
+
+.widget-control .indicator-pill {
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.widget-body {
+    margin-top: 10px;
+}
+
+.widget-footer {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.link-item {
+    display: block;
+    padding: 5px 0;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.link-item .link-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.link-item .link-text {
+    font-size: 14px;
+}
+
+.icon-xs {
+    width: 16px;
+    height: 16px;
+}
