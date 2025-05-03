@@ -37,7 +37,7 @@ public class HomeController {
         if (loginOk) {
             return "redirect:/home";
         } else {
-            redirectAttributes.addFlashAttribute("error", "Identifiants invalides.");
+            redirectAttributes.addFlashAttribute("error", "Invalid Login. Try again.");
             return "redirect:/";
         }
     }

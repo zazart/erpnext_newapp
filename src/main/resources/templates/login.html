@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-<th:block th:replace="~{fragments/head.html}"></th:block>
 
 <body class="dark " style="overflow-x: hidden">
 <div class="wrapper vh-100">
@@ -11,9 +10,8 @@
             </a>
             <h1 class="h6 mb-3">Log in to NewApp ERPNext</h1>
 
-
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span style="font-size: 1.2em;">Invalid login credentials</span>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}" style="font-size: 1.2em;"></span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -35,8 +33,6 @@
         </form>
     </div>
 </div>
-
-
 
 <th:block th:replace="~{fragments/script.html}"></th:block>
 </body>
