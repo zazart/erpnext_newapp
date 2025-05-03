@@ -5,9 +5,9 @@
 <body class="dark " style="overflow-x: hidden">
 <div class="wrapper vh-100">
     <div class="row align-items-center h-100">
-        <form action="" method="post"  class="col-lg-3 col-md-4 col-10 mx-auto text-center">
+        <form action="/login" method="post"  class="col-lg-3 col-md-4 col-10 mx-auto text-center">
             <a class="navbar-brand mx-auto mt-2 flex-fill text-center" >
-                <img th:src="@{/assets/images/erpnext-logo.svg}" alt="Logo Avion" class="navbar-brand-img brand-md">
+                <img th:src="@{/assets/images/erpnext-favicon.svg}" alt="Logo Avion" class="navbar-brand-img brand-md">
             </a>
             <h1 class="h6 mb-3">Log in to NewApp ERPNext</h1>
 
@@ -22,14 +22,14 @@
 
             <div class="form-group">
                 <label for="inputEmail"></label>
-                <input type="text" id="inputEmail" aria-required="true" class="form-control form-control-lg" placeholder="jane@example.com" autofocus="" name="login.email">
+                <input type="text" id="inputEmail" aria-required="true" class="form-control form-control-lg" placeholder="jane@example.com" autofocus="" name="usr">
 
             </div>
             <div class="form-group">
                 <label for="inputPassword"></label>
-                <input type="password" id="inputPassword" class="form-control form-control-lg" placeholder="password" name="login.mdp">
+                <input type="password" id="inputPassword" class="form-control form-control-lg" placeholder="password" name="pwd">
             </div>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+            <button class="btn btn-lg btn-dark btn-block" type="submit">Login</button>
             <p class="mt-5 mb-3 text-muted">© 2025</p>
 
         </form>
