@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+
+<body class="vertical light">
+<div class="wrapper">
+
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <h2 class="page-title">Test</h2>
+                    <p class="text-muted">
+                        Gérez efficacement vos postes comptables en ajoutant de nouvelles rubriques.
+                    </p>
+<!--                    &lt;!&ndash; Affichage du message de succès ou d'erreur &ndash;&gt;-->
+<!--                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible mt-4" role="alert">-->
+<!--                        <span th:text="${successMessage}"></span>-->
+<!--                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+
+<!--                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible mt-4" role="alert">-->
+<!--                        <span th:text="${errorMessage}"></span>-->
+<!--                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card shadow mb-4">
+                                <div class="card-header">
+                                    <strong class="card-title">Poste</strong>
+                                </div>
+                                <div class="card-body">
+                                    <form class="needs-validation" action="#" method="post" novalidate>
+                                        <!-- Montant -->
+                                        <div class="form-group mb-3" id="montant-group" style="display: none;">
+                                            <label for="montant">Montant (Ar)</label>
+                                            <input type="number" step="0.01" class="form-control" id="montant"
+                                                   placeholder="Entrez un montant" name="montant">
+                                        </div>
+                                        <div class="form-group mb-3" id="date-group" style="display: none;">
+                                            <label for="date">Date </label>
+                                            <input type="date" step="0.01" class="form-control" id="date" placeholder="Entrez un montant"
+                                                   name="dateSaisie">
+                                        </div>
+                                        <!-- Button -->
+                                        <button id="submit-button" class="btn btn-primary" type="submit"
+                                                style="display: none;">Insérer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+</body>
+
+</html>
