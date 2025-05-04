@@ -94,3 +94,14 @@
     width: 16px;
     height: 16px;
 }
+
+
+.avatar_perso{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #bebebe;
+    font-size:20px;
+    font-weight: bold;
+}
