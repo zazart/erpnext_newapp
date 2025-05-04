@@ -16,17 +16,19 @@ import org.slf4j.Logger;
 public class AuthService {
 
     private final RestTemplate restTemplate;
+    private final HttpSession session;
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AuthService.class);
 
     @Value("${erpnext.api.url}")
     private String erpnextApiUrl;
 
 
-    public AuthService(RestTemplate restTemplate) {
+    public AuthService(RestTemplate restTemplate, HttpSession session) {
         this.restTemplate = restTemplate;
+        this.session = session;
     }
 
-    public boolean authenticate(String usr, String pwd, HttpSession session) {
+    public boolean authenticate(String usr, String pwd) {
         String url = erpnextApiUrl + "/api/method/login";
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();

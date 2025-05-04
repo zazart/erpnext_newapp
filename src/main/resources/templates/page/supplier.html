@@ -33,8 +33,8 @@
 
                                         <tbody>
                                         <th:block th:each="supplier, iterStat : ${suppliers}">
-                                            <tr>
-                                                <td>
+                                            <tr class="supplier-row" th:attr="data-supplier=${supplier.name}" style="cursor: pointer;">
+                                            <td>
                                                     <p class="mb-0 text-muted">
                                                         <strong th:text="${supplier.supplierName}">-</strong>
                                                     </p>
@@ -68,6 +68,18 @@
                 [20, 100, 500, "All"]
             ]
         });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".supplier-row").forEach(function(row) {
+            row.addEventListener("click", function() {
+                const supplierName = this.dataset.supplier;
+                console.log(supplierName);
+                // window.location.href = `/supplier/${supplierName}/quotes`;
+            });
+        });
+    });
+
 </script>
 
 

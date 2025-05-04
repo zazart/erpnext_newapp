@@ -2,6 +2,7 @@ package itu.zazart.erpnext.controller;
 
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.service.AuthService;
+import itu.zazart.erpnext.service.SessionService;
 import itu.zazart.erpnext.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -16,10 +17,12 @@ public class HomeController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final SessionService sessionService;
 
-    public HomeController(AuthService authService, UserService userService) {
+    public HomeController(AuthService authService, UserService userService, SessionService sessionService) {
         this.authService = authService;
         this.userService = userService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/")
@@ -29,10 +32,11 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model, HttpSession session) {
-        User user = (User) session.getAttribute("erp_user");
-        if (user != null) {
-            model.addAttribute("user", user);
+        if (sessionService.isLoggedIn()) {
+            return "redirect:/";
         }
+        User user = sessionService.getErpUser();
+        model.addAttribute("user", user);
         return "page/home";
     }
 
@@ -40,11 +44,12 @@ public class HomeController {
     public String login(
             @RequestParam String usr,
             @RequestParam String pwd,
-            HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
-        boolean loginOk = authService.authenticate(usr, pwd, session);
-        userService.checkUser(usr, session);
+        boolean loginOk = authService.authenticate(usr, pwd);
+        String sid = sessionService.getErpSid();
+        User user = userService.checkUser(usr, sid);
+        sessionService.setUserSession(user);
 
         if (loginOk) {
             return "redirect:/home";

@@ -24,7 +24,7 @@ public class SupplierController {
 
     @GetMapping("/supplier")
     public String home(Model model) {
-        if (!sessionService.isLoggedIn()) {
+        if (sessionService.isLoggedIn()) {
             return "redirect:/";
         }
 

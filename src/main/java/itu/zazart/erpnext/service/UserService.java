@@ -1,7 +1,6 @@
 package itu.zazart.erpnext.service;
 
 import itu.zazart.erpnext.model.User;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -30,12 +29,8 @@ public class UserService {
         this.restTemplate = restTemplate;
     }
 
-    public void checkUser(String name, HttpSession session) {
+    public User checkUser(String name, String sid) {
         String url = erpnextApiUrl + "/api/resource/User/" + name;
-        System.out.println("URL finale : " + url);
-
-        String sid = (String) session.getAttribute("erp_sid");
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -45,16 +40,13 @@ public class UserService {
 
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            System.out.println("Réponse brute : " + responseEntity.getBody());
-
-            User user = mapToUser(responseEntity.getBody());
-            session.setAttribute("erp_user", user);
+            return mapToUser(responseEntity.getBody());
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Request error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             logger.error("Unexpected error: {}", e.getMessage(), e);
         }
-
+        return null;
     }
 
     private User mapToUser(String responseBody) {
