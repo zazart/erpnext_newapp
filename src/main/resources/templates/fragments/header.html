@@ -12,7 +12,7 @@
                 <div class="mr-3 font-weight-bold" th:text="${user.fullName}">User Full Name</div>
                 <span class="avatar avatar-sm">
             <div th:if="${user.userImage != null and user.userImage != ''}" class="avatar-img">
-                <img th:src="@{${user.userImage}}" alt="User Avatar" class="rounded-circle border border-light shadow-sm" style="width: 40px; height: 40px;">
+                <img th:src="@{${user.userImage}}" class="rounded-circle border border-light shadow-sm" style="width: 40px; height: 40px;">
             </div>
             <div th:if="${user.userImage == null or user.userImage == ''}" class="avatar-img" style="position: relative;">
                     <span class="avatar_perso" th:text="${user.initial}"></span>

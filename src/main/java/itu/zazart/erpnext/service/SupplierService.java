@@ -42,11 +42,11 @@ public class SupplierService {
             logger.debug("Received response with status: {}", response.getStatusCode());
 
             if (response.getBody() != null && response.getBody().containsKey("data")) {
-                List<Map<String, Object>> suppliersData = (List<Map<String, Object>>) response.getBody().get("data");
-                logger.info("Number of suppliers fetched: {}", suppliersData.size());
+                List<Map<String, Object>> dataList = (List<Map<String, Object>>) response.getBody().get("data");
+                logger.info("Number of suppliers fetched: {}", dataList.size());
 
                 Vector<Supplier> suppliers = new Vector<>();
-                for (Map<String, Object> supplierData : suppliersData) {
+                for (Map<String, Object> supplierData : dataList) {
                     Supplier supplier = new Supplier();
                     supplier.setName((String) supplierData.get("name"));
                     supplier.setCreation(parseDate(supplierData.get("creation")));

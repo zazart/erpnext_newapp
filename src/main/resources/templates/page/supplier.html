@@ -69,17 +69,15 @@
             ]
         });
 
-
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".supplier-row").forEach(function(row) {
             row.addEventListener("click", function() {
                 const supplierName = this.dataset.supplier;
                 console.log(supplierName);
-                // window.location.href = `/supplier/${supplierName}/quotes`;
+                window.location.href = `/supplier_quotation?name=${encodeURIComponent(supplierName)}`;
             });
         });
     });
-
 </script>
 
 

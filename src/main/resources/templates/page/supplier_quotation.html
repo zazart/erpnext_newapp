@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+<body class="vertical light">
+<div class="wrapper">
+
+  <th:block th:replace="~{fragments/header.html}"></th:block>
+  <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h2 class="h3 mb-4 page-title">Supplier</h2>
+          <div class="row mt-5 align-items-center">
+            <div class="col-md-3 text-center mb-5">
+              <div class="avatar avatar-xl">
+                <img src="./assets/avatars/face-1.jpg" alt="..." class="avatar-img rounded-circle">
+              </div>
+            </div>
+            <div class="col">
+              <div class="row align-items-center">
+                <div class="col-md-7">
+                  <h4 class="mb-1" th:text="@{user.supplierName}"></h4>
+                  <p class="small mb-3"><span class="badge badge-dark">New York, USA</span></p>
+                </div>
+              </div>
+              <div class="row mb-4">
+                <div class="col-md-7">
+                  <p class="text-muted"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris blandit nisl ullamcorper, rutrum metus in, congue lectus. In hac habitasse platea dictumst. Cras urna quam, malesuada vitae risus at, pretium blandit sapien. </p>
+                </div>
+                <div class="col">
+                  <p class="small mb-0 text-muted">Nec Urna Suscipit Ltd</p>
+                  <p class="small mb-0 text-muted">P.O. Box 464, 5975 Eget Avenue</p>
+                  <p class="small mb-0 text-muted">(537) 315-1481</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3>Subscription</h3>
+          <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris blandit nisl ullamcorper, rutrum metus in, congue lectus.</p>
+          <div class="card-deck my-4">
+            <div class="card mb-4 shadow">
+              <div class="card-body text-center my-4">
+                <a href="#">
+                  <h3 class="h5 mt-4 mb-0">Basic</h3>
+                </a>
+                <p class="text-muted">package</p>
+                <span class="h1 mb-0">$9.9</span>
+                <p class="text-muted">year</p>
+                <ul class="list-unstyled">
+                  <li>Lorem ipsum dolor sit amet</li>
+                  <li>Consectetur adipiscing elit</li>
+                  <li>Integer molestie lorem at massa</li>
+                  <li>Eget porttitor lorem</li>
+                </ul>
+                <span class="dot dot-lg bg-success"></span>
+                <span class="text-muted ml-3">Active</span>
+              </div> <!-- .card-body -->
+            </div> <!-- .card -->
+            <div class="card mb-4">
+              <div class="card-body text-center my-4">
+                <a href="#">
+                  <h3 class="h5 mt-4 mb-0">Professional</h3>
+                </a>
+                <p class="text-muted">package</p>
+                <span class="h1 mb-0">$16.9</span>
+                <p class="text-muted">year</p>
+                <ul class="list-unstyled">
+                  <li>Lorem ipsum dolor sit amet</li>
+                  <li>Consectetur adipiscing elit</li>
+                  <li>Integer molestie lorem at massa</li>
+                  <li>Eget porttitor lorem</li>
+                </ul>
+                <button type="button" class="btn mb-2 btn-primary btn-lg">Ugrade</button>
+              </div> <!-- .card-body -->
+            </div> <!-- .card -->
+          </div> <!-- .card-group -->
+
+        </div> <!-- /.col-12 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+   <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="defaultModalLabel">Shortcuts</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body px-5">
+            <div class="row align-items-center">
+              <div class="col-6 text-center">
+                <div class="squircle bg-success justify-content-center">
+                  <i class="fe fe-cpu fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Control area</p>
+              </div>
+              <div class="col-6 text-center">
+                <div class="squircle bg-primary justify-content-center">
+                  <i class="fe fe-activity fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Activity</p>
+              </div>
+            </div>
+            <div class="row align-items-center">
+              <div class="col-6 text-center">
+                <div class="squircle bg-primary justify-content-center">
+                  <i class="fe fe-droplet fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Droplet</p>
+              </div>
+              <div class="col-6 text-center">
+                <div class="squircle bg-primary justify-content-center">
+                  <i class="fe fe-upload-cloud fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Upload</p>
+              </div>
+            </div>
+            <div class="row align-items-center">
+              <div class="col-6 text-center">
+                <div class="squircle bg-primary justify-content-center">
+                  <i class="fe fe-users fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Users</p>
+              </div>
+              <div class="col-6 text-center">
+                <div class="squircle bg-primary justify-content-center">
+                  <i class="fe fe-settings fe-32 align-self-center text-white"></i>
+                </div>
+                <p>Settings</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+<script th:src="@{js/jquery.dataTables.min.js}"></script>
+<script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script>
+  $('#dataTable-1').DataTable(
+          {
+            autoWidth: true,
+            "lengthMenu": [
+              [20, 100, 500, -1],
+              [20, 100, 500, "All"]
+            ]
+          });
+
+
+</script>
+
+
+</body>
+
+</html>
