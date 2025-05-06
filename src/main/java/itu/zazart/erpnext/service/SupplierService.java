@@ -112,6 +112,53 @@ public class SupplierService {
         return new Vector<>();
     }
 
+    public Supplier getSupplierByName(String name, String sid) {
+        String url = erpnextApiUrl + "/api/resource/Supplier/" + name;
+        logger.info("Fetching supplier from URL: {}", url);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            var response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getBody() != null && response.getBody().containsKey("data")) {
+                Map<String, Object> supplierData = (Map<String, Object>) response.getBody().get("data");
+
+                Supplier supplier = new Supplier();
+                supplier.setName((String) supplierData.get("name"));
+                supplier.setOwner((String) supplierData.get("owner"));
+                supplier.setCreation(parseDate(supplierData.get("creation")));
+                supplier.setModified(parseDate(supplierData.get("modified")));
+                supplier.setSupplierName((String) supplierData.get("supplier_name"));
+                supplier.setModifiedBy((String) supplierData.get("modified_by"));
+                supplier.setSupplierGroup((String) supplierData.get("supplier_group"));
+                supplier.setCountry((String) supplierData.get("country"));
+                supplier.setSupplierType((String) supplierData.get("supplier_type"));
+                supplier.setImage((String) supplierData.get("image"));
+
+                if(supplier.getImage()!= null){
+                    if (supplier.getImage().startsWith("/")){
+                        supplier.setImage(erpnextApiUrl+supplier.getImage());
+                    }
+                }
+
+                logger.info("Successfully mapped supplier: {}", supplier.getName());
+                return supplier;
+            } else {
+                logger.warn("No data field found in the response body.");
+            }
+
+        } catch (Exception e) {
+            logger.error("Error fetching supplier from ERPNext: {}", e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+
     private Date parseDate(Object date) {
         if (date == null) return null;
         try {

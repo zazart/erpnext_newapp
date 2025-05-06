@@ -106,10 +106,30 @@
     font-weight: bold;
 }
 
+.avatar_perso_xl{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #bebebe;
+    font-size:60px;
+    font-weight: bold;
+}
+
 
 .supplier-row {
     transition: background-color 0.2s ease-in-out;
 }
 .supplier-row:hover {
     background-color: #f0f8ff;
+}
+
+.badge{
+    padding: 0.40em 0.7em !important;
+    font-size: 82% !important;
+}
+
+.page-item.active .page-link {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
 }

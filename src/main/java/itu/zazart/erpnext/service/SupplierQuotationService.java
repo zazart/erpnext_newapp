@@ -1,20 +1,19 @@
 package itu.zazart.erpnext.service;
 
+import itu.zazart.erpnext.dto.ItemUpdateRequest;
 import itu.zazart.erpnext.model.SupplierQuotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 @Service
 public class SupplierQuotationService {
@@ -30,7 +29,7 @@ public class SupplierQuotationService {
     }
 
     public Vector<SupplierQuotation> getSupplierQuotationBySupllier(String sid,String name){
-        String filtreUrls = erpnextApiUrl
+        String url = erpnextApiUrl
                 + "/api/resource/Supplier Quotation?filters=[[\"supplier\",\"=\",\"" + name + "\"]]"
                 + "&fields=[\"supplier_name\",\"status\",\"transaction_date\",\"valid_till\",\"grand_total\",\"name\"]";
 
@@ -38,7 +37,7 @@ public class SupplierQuotationService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        var response = restTemplate.exchange(filtreUrls, HttpMethod.GET, entity, Map.class);
+        var response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
         logger.debug("Received response with status: {}", response.getStatusCode());
 
         if (response.getBody() != null && response.getBody().containsKey("data")) {
@@ -72,5 +71,76 @@ public class SupplierQuotationService {
         }
     }
 
+
+    public Vector<Map<String, Object>> getItemSupplierQuotation(String sid, String name) {
+        String url = erpnextApiUrl + "/api/resource/Supplier Quotation/" + name;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        var response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+
+        Vector<Map<String, Object>> items = new Vector<>();
+
+        if (response.getBody() != null && response.getBody().containsKey("data")) {
+            Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
+
+            List<Map<String, Object>> itemList = (List<Map<String, Object>>) data.get("items");
+            for (Map<String, Object> item : itemList) {
+                Map<String, Object> itemDetails = new HashMap<>();
+                itemDetails.put("name", item.get("name"));
+                itemDetails.put("item_code", item.get("item_code"));
+                itemDetails.put("item_name", item.get("item_name"));
+                itemDetails.put("qty", item.get("qty"));
+                itemDetails.put("rate", item.get("rate"));
+                itemDetails.put("amount", item.get("amount"));
+                itemDetails.put("description", item.get("description"));
+
+                items.add(itemDetails);
+            }
+        }
+        return items;
+    }
+
+
+    public ResponseEntity<String> updateItemsPrices(String sid, String quotationName, List<ItemUpdateRequest> updates) {
+        String url = erpnextApiUrl + "/api/resource/Supplier Quotation/" + quotationName;
+
+        logger.info("Updating prices for quotation: {}", quotationName);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+
+        try {
+            HttpEntity<Void> getEntity = new HttpEntity<>(headers);
+            var response = restTemplate.exchange(url, HttpMethod.GET, getEntity, Map.class);
+
+            Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
+            List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
+
+            for (ItemUpdateRequest update : updates) {
+                for (Map<String, Object> item : items) {
+                    if (update.getName().equals(item.get("name"))) {
+                        item.put("rate", update.getNewRate());
+                        break;
+                    }
+                }
+            }
+
+            Map<String, Object> updateBody = new HashMap<>();
+            updateBody.put("items", items);
+            updateBody.put("docstatus", 1);
+
+            HttpEntity<Map<String, Object>> updateEntity = new HttpEntity<>(updateBody, headers);
+            ResponseEntity<String> updateResponse = restTemplate.exchange(url, HttpMethod.PUT, updateEntity, String.class);
+
+            logger.info("Quotation '{}' updated successfully", quotationName);
+
+            return updateResponse;
+        } catch (Exception e) {
+            logger.error("Error updating quotation '{}'", quotationName, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating quotation");
+        }
+    }
 
 }

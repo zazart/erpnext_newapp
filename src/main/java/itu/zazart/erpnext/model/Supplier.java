@@ -25,7 +25,7 @@ public class Supplier {
     private String supplierGroup;
     private String supplierType;
     private int isTransporter;
-    private String image;
+    private String image = "";
     private String defaultCurrency;
     private String defaultBankAccount;
     private String defaultPriceList;
@@ -59,4 +59,11 @@ public class Supplier {
     private String assign;
     private String likedBy;
 
+
+    public String getInitial() {
+        if (supplierName != null && !supplierName.isEmpty()) {
+            return supplierName.substring(0, 1).toUpperCase();
+        }
+        return "?";
+    }
 }
