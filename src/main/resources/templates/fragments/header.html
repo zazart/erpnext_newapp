@@ -9,17 +9,25 @@
 
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <div class="mr-3 font-weight-bold">ANTEMA Rakotoarivelo</div>
+                <div class="mr-3 font-weight-bold" th:text="${user.fullName}">User Full Name</div>
                 <span class="avatar avatar-sm">
-            <img src="./assets/avatars/face-1.jpg" alt="..." class="avatar-img rounded-circle border border-light shadow-sm" style="width: 40px; height: 40px;">
+            <div th:if="${user.userImage != null and user.userImage != ''}" class="avatar-img">
+                <img th:src="@{${user.userImage}}" class="rounded-circle border border-light shadow-sm" style="width: 40px; height: 40px;">
+            </div>
+            <div th:if="${user.userImage == null or user.userImage == ''}" class="avatar-img" style="position: relative;">
+                    <span class="avatar_perso" th:text="${user.initial}"></span>
+                <img th:src="@{'/assets/avatars/face-1.jpg'}" alt="Default Avatar" class="rounded-circle border border-light shadow-sm" style="width: 40px; height: 40px;">
+            </div>
+
         </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item d-flex align-items-center" href="#">
+                <a class="dropdown-item d-flex align-items-center" th:href="@{/logout}">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </a>
             </div>
         </li>
+
 
     </ul>
 </nav>

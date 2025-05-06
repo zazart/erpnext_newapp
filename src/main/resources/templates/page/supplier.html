@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+<body class="vertical light">
+<div class="wrapper">
+
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <h2 class="mb-2 page-title">Supplier</h2>
+                    <p class="card-text">
+                        Select a supplier to list quote requests and update the corresponding prices.
+                    </p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <!-- table -->
+                                    <table class="table datatables" id="dataTable-1">
+                                        <thead>
+                                        <tr>
+                                            <th>Supplier Name</th>
+                                            <th>Supplier Type</th>
+                                            <th>Supplier Group</th>
+                                            <th>ID</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <th:block th:each="supplier, iterStat : ${suppliers}">
+                                            <tr class="supplier-row" th:attr="data-supplier=${supplier.name}" style="cursor: pointer;">
+                                            <td>
+                                                    <p class="mb-0 text-muted">
+                                                        <strong th:text="${supplier.supplierName}">-</strong>
+                                                    </p>
+                                                </td>
+                                                <td th:text="${supplier.supplierType}">-</td>
+                                                <td th:text="${supplier.supplierGroup}">-</td>
+                                                <td th:text="${supplier.name}">-</td>
+                                            </tr>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div> <!-- end section -->
+                </div> <!-- .col-12 -->
+            </div>
+        </div>
+    </main>
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+<script th:src="@{js/jquery.dataTables.min.js}"></script>
+<script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script>
+    $('#dataTable-1').DataTable(
+        {
+            autoWidth: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".supplier-row").forEach(function(row) {
+            row.addEventListener("click", function() {
+                const supplierName = this.dataset.supplier;
+                console.log(supplierName);
+                window.location.href = `/supplier_quotation?name=${encodeURIComponent(supplierName)}`;
+            });
+        });
+    });
+</script>
+
+
+</body>
+
+</html>
