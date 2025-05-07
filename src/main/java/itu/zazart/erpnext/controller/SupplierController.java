@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -38,7 +37,7 @@ public class SupplierController {
 
     @GetMapping("/supplier")
     public String supplier(Model model) {
-        if (sessionService.isLoggedIn()) {
+        if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
 
@@ -54,7 +53,7 @@ public class SupplierController {
 
     @GetMapping("/supplier_quotation")
     public String supplierQuotation(Model model, @RequestParam String name) {
-        if (sessionService.isLoggedIn()) {
+        if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
         User user = sessionService.getErpUser();

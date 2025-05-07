@@ -133,3 +133,18 @@
     background-color: #000000 !important;
     border-color: #000000 !important;
 }
+
+
+.action-link {
+    text-decoration: none;
+    color: inherit;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.action-link:hover {
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.1); /* Léger gris transparent */
+    cursor: pointer;
+}

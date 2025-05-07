@@ -23,7 +23,7 @@ public class SessionService {
         } else {
             logger.warn("User is not logged in.");
         }
-        return !loggedIn;
+        return loggedIn;
     }
 
     public void setUserSession(User user) {
