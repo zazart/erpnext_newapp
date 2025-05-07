@@ -71,7 +71,15 @@
                             <strong th:text="${supplierQuotation.title}">-</strong>
                           </p>
                         </td>
-                        <td th:text="${supplierQuotation.status}">-</td>
+                        <td>
+                        <span th:text="${supplierQuotation.status}"
+                              th:classappend="|${supplierQuotation.status == 'Draft' ? 'badge draft-color' : ''}
+                                              ${supplierQuotation.status == 'Submitted' ? 'badge submitted-color' : ''}
+                                              ${supplierQuotation.status == 'Ordered' ? 'badge ordered-color' : ''}
+                                              ${supplierQuotation.status == 'Cancelled' ? 'badge cancelled-color' : ''}|">
+                            -
+                        </span>
+                        </td>
                         <td th:text="${supplierQuotation.transactionDate}">-</td>
                         <td th:text="${supplierQuotation.validTill}">-</td>
                         <td th:text="${supplierQuotation.grandTotal}">-</td>
@@ -82,14 +90,17 @@
                         </td>
 
                         <td>
-                          <a data-toggle="modal"
+                          <a th:if="${supplierQuotation.status == 'Draft'}"
+                             data-toggle="modal"
                              data-target="#updatePricesModal"
                              th:attr="data-supplier-name=${supplierQuotation.name}"
                              href="#"
                              style="text-decoration: none; color: inherit;">
                             <i class="fe fe-edit fe-16"></i>
                           </a>
+                          <i th:if="${supplierQuotation.status != 'Draft'}" class="fe fe-lock fe-16" style="color: gray;"></i>
                         </td>
+
                       </tr>
                     </th:block>
                     </tbody>
@@ -169,7 +180,18 @@
                               <strong th:text="${purchaseOrder.name}">-</strong>
                             </p>
                           </td>
-                          <td th:text="${purchaseOrder.status}">-</td>
+                          <td>
+                            <span th:text="${purchaseOrder.status}"
+                                  th:classappend="|${purchaseOrder.status == 'Draft' ? 'badge draft-color' : ''}
+                                                  ${purchaseOrder.status == 'To Receive and Bill' ? 'badge to-receive-and-bill-color' : ''}
+                                                  ${purchaseOrder.status == 'To Receive' ? 'badge to-receive-color' : ''}
+                                                  ${purchaseOrder.status == 'To Bill' ? 'badge to-bill-color' : ''}
+                                                  ${purchaseOrder.status == 'Completed' ? 'badge completed-color' : ''}
+                                                  ${purchaseOrder.status == 'Cancelled' ? 'badge cancelled-color' : ''}
+                                                  ${purchaseOrder.status == 'Closed' ? 'badge closed-color' : ''}
+                                                  ${purchaseOrder.status == 'On Hold' ? 'badge on-hold-color' : ''}|">-
+                            </span>
+                          </td>
                           <td th:text="${purchaseOrder.modified}">-</td>
                           <td th:text="${purchaseOrder.total}">-</td>
                           <td style="width: 120px;">

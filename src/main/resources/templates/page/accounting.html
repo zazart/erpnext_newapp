@@ -41,7 +41,16 @@
                                                         <strong th:text="${purchaseInvoice.title}">-</strong>
                                                     </p>
                                                 </td>
-                                                <td th:text="${purchaseInvoice.status}">-</td>
+                                                <td>
+                                                    <span th:text="${purchaseInvoice.status}"
+                                                          th:classappend="|${purchaseInvoice.status == 'Draft' ? 'badge draft-color' : ''}
+                                                                          ${purchaseInvoice.status == 'Unpaid' ? 'badge unpaid-color' : ''}
+                                                                          ${purchaseInvoice.status == 'Partly Paid' ? 'badge partly-paid-color' : ''}
+                                                                          ${purchaseInvoice.status == 'Paid' ? 'badge paid-color' : ''}
+                                                                          ${purchaseInvoice.status == 'Overdue' ? 'badge overdue-color' : ''}
+                                                                          ${purchaseInvoice.status == 'Cancelled' ? 'badge cancelled-color' : ''}|">
+                                                    </span>
+                                                </td>
                                                 <td th:text="${purchaseInvoice.modified}">-</td>
                                                 <td th:text="${purchaseInvoice.grandTotal}">-</td>
                                                 <td>
@@ -51,14 +60,22 @@
                                                 </td>
                                                 <td>
                                                     <button type="button"
+                                                            th:if="${purchaseInvoice.status == 'Unpaid' || purchaseInvoice.status == 'Partly Paid'}"
                                                             class="btn mb-2 btn-dark"
                                                             data-toggle="modal"
                                                             data-target="#varyModal"
                                                             th:attr="
-                                                                data-modified=${purchaseInvoice.modified},
-                                                                data-supplier-name=${purchaseInvoice.supplierName},
-                                                                data-outstandingamount=${purchaseInvoice.outstandingAmount},
-                                                                data-purchaseinvoice-name=${purchaseInvoice.name}">
+                                                            data-modified=${purchaseInvoice.modified},
+                                                            data-supplier-name=${purchaseInvoice.supplierName},
+                                                            data-outstandingamount=${purchaseInvoice.outstandingAmount},
+                                                            data-purchaseinvoice-name=${purchaseInvoice.name}">
+                                                        Pay
+                                                    </button>
+
+                                                    <button type="button"
+                                                            th:if="${purchaseInvoice.status != 'Unpaid' and purchaseInvoice.status != 'Partly Paid'}"
+                                                            class="btn mb-2 btn-secondary"
+                                                            disabled>
                                                         Pay
                                                     </button>
                                                 </td>
