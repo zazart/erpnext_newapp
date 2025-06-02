@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import itu.zazart.erpnext.service.Utils;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -65,5 +68,27 @@ public class CompanyService {
             logger.error("Error fetching Company from ERPNext: {}", e.getMessage(), e);
         }
         return new Vector<>();
+    }
+
+    public String newCompany(String sid) {
+        String url = erpnextApiUrl + "/api/resource/Company";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        try {
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("company_name", "Post Java Company Test");
+            requestBody.put("abbr", "PJCT");
+            requestBody.put("default_currency", "USD");
+            requestBody.put("country", "Madagascar");
+            requestBody.put("is_group", 0);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Company");
+        }
     }
 }

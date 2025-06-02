@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -26,15 +27,15 @@ public class SalaryStructure {
     private String isDefault; // "Yes" / "No"
     private String currency;
     private String amendedFrom;
-    private double leaveEncashmentAmountPerDay;
-    private double maxBenefits;
+    private BigDecimal leaveEncashmentAmountPerDay;
+    private BigDecimal maxBenefits;
     private int salarySlipBasedOnTimesheet; // 0 or 1
     private String payrollFrequency;
     private String salaryComponent;
-    private double hourRate;
-    private double totalEarning;
-    private double totalDeduction;
-    private double netPay;
+    private BigDecimal hourRate;
+    private BigDecimal totalEarning;
+    private BigDecimal totalDeduction;
+    private BigDecimal netPay;
     private String modeOfPayment;
     private String paymentAccount;
     private String earnings;

@@ -4,13 +4,13 @@ import itu.zazart.erpnext.dto.ItemUpdateRequest;
 import itu.zazart.erpnext.model.buying.PurchaseOrder;
 import itu.zazart.erpnext.model.buying.SupplierQuotation;
 import itu.zazart.erpnext.model.User;
-import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.service.*;
 import itu.zazart.erpnext.service.buying.PurchaseOrderService;
 import itu.zazart.erpnext.service.buying.SupplierQuotationService;
 import itu.zazart.erpnext.service.buying.SupplierService;
-import itu.zazart.erpnext.service.hr.EmployeeService;
-import itu.zazart.erpnext.service.hr.SalaryComponentService;
+import itu.zazart.erpnext.service.hr.CompanyService;
+import itu.zazart.erpnext.service.hr.SalaryStructureAssignmentService;
+import itu.zazart.erpnext.service.hr.SalaryStructureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -33,14 +33,14 @@ public class SupplierController {
     private final SupplierService supplierService;
     private final SupplierQuotationService supplierQuotationService;
     private final PurchaseOrderService purchaseOrderService;
-    private final SalaryComponentService employeeService;
+    private final CompanyService employeeService;
 
-    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService, SalaryComponentService employeeService) {
+    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService, CompanyService employeeService, CompanyService employeeService1) {
         this.sessionService = sessionService;
         this.supplierService = supplierService;
         this.supplierQuotationService = supplierQuotationService;
         this.purchaseOrderService = purchaseOrderService;
-        this.employeeService = employeeService;
+        this.employeeService = employeeService1;
     }
 
     @GetMapping("/supplier")
@@ -54,7 +54,7 @@ public class SupplierController {
 
         String sid = sessionService.getErpSid();
         Vector<Supplier> suppliers = supplierService.getAllSuppliers(sid);
-        employeeService.getAllSalaryComponent(sid);
+        employeeService.newCompany(sid);
         model.addAttribute("suppliers", suppliers);
 
 

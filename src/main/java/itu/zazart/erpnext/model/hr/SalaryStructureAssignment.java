@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -31,9 +32,9 @@ public class SalaryStructureAssignment {
     private String company;
     private String payrollPayableAccount;
     private String currency;
-    private double base;
-    private double variable;
+    private BigDecimal base;
+    private BigDecimal variable;
     private String amendedFrom;
-    private double taxableEarningsTillDate;
-    private double taxDeductedTillDate;
+    private BigDecimal taxableEarningsTillDate;
+    private BigDecimal taxDeductedTillDate;
 }
