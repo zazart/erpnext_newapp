@@ -1,8 +1,8 @@
 package itu.zazart.erpnext.controller;
 
-import itu.zazart.erpnext.model.PurchaseInvoice;
+import itu.zazart.erpnext.model.buying.PurchaseInvoice;
 import itu.zazart.erpnext.model.User;
-import itu.zazart.erpnext.service.AccountingService;
+import itu.zazart.erpnext.service.buying.AccountingService;
 import itu.zazart.erpnext.service.SessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

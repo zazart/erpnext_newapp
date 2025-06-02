@@ -27,6 +27,7 @@
                                             <th>Title</th>
                                             <th>Status</th>
                                             <th>Date</th>
+                                            <th>Outstanding Amount</th>
                                             <th>Grand Total</th>
                                             <th>ID</th>
                                             <th>Action</th>
@@ -52,6 +53,7 @@
                                                     </span>
                                                 </td>
                                                 <td th:text="${purchaseInvoice.modified}">-</td>
+                                                <td th:text="${purchaseInvoice.outstandingAmount}">-</td>
                                                 <td th:text="${purchaseInvoice.grandTotal}">-</td>
                                                 <td>
                                                     <p class="mb-0 text-muted">
@@ -128,8 +130,8 @@
                                             <tr>
                                                 <td><p class="ml-1 mb-0 text-muted"><strong>Paid From</strong></p></td>
                                                 <td>
-                                                    <select class="form-control" id="paidFrom">
-                                                        <option name="Cash - ZD" value="Cash - ZD" >Cash - ZD</option>
+                                                    <select class="form-control" id="paidFrom" disabled>
+                                                        <option name="Cash - ZD" value="Cash - ZD" selected>Cash - ZD</option>
                                                         <option name="Bank Account - ZD" value="Bank Account - ZD">Bank Account - ZD</option>
                                                     </select>
                                                 </td>
@@ -137,7 +139,7 @@
                                             <tr>
                                                 <td><p class="ml-1 mb-0 text-muted"><strong>Paid To</strong></p></td>
                                                 <td>
-                                                    <select class="form-control" id="paidTo">
+                                                    <select class="form-control" id="paidTo" disabled>
                                                         <option name="Creditors - ZD" value="Creditors - ZD" >Creditors - ZD</option>
                                                     </select>
                                                 </td>

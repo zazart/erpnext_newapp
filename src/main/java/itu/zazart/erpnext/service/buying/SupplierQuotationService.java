@@ -1,7 +1,7 @@
-package itu.zazart.erpnext.service;
+package itu.zazart.erpnext.service.buying;
 
 import itu.zazart.erpnext.dto.ItemUpdateRequest;
-import itu.zazart.erpnext.model.SupplierQuotation;
+import itu.zazart.erpnext.model.buying.SupplierQuotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
