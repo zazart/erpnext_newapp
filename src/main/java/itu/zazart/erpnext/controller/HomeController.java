@@ -32,7 +32,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model, HttpSession session) {
-        if (sessionService.isLoggedIn()) {
+        if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
         User user = sessionService.getErpUser();

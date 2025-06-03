@@ -1,4 +1,4 @@
-package itu.zazart.erpnext.model;
+package itu.zazart.erpnext.model.buying;
 
 import java.math.BigDecimal;
 import java.util.Date;

@@ -1,15 +1,12 @@
-package itu.zazart.erpnext.service;
+package itu.zazart.erpnext.service.buying;
 
 import itu.zazart.erpnext.dto.ItemUpdateRequest;
-import itu.zazart.erpnext.model.SupplierQuotation;
+import itu.zazart.erpnext.model.buying.SupplierQuotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -31,7 +28,7 @@ public class SupplierQuotationService {
     public Vector<SupplierQuotation> getSupplierQuotationBySupllier(String sid,String name){
         String url = erpnextApiUrl
                 + "/api/resource/Supplier Quotation?filters=[[\"supplier\",\"=\",\"" + name + "\"]]"
-                + "&fields=[\"supplier_name\",\"status\",\"transaction_date\",\"valid_till\",\"grand_total\",\"name\"]";
+                + "&fields=[\"supplier_name\",\"title\",\"status\",\"transaction_date\",\"valid_till\",\"grand_total\",\"name\"]";
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -49,6 +46,7 @@ public class SupplierQuotationService {
                 SupplierQuotation sq = new SupplierQuotation();
                 sq.setSupplierName((String) data.get("supplier_name"));
                 sq.setName((String) data.get("name"));
+                sq.setTitle((String) data.get("title"));
                 sq.setStatus((String) data.get("status"));
                 sq.setGrandTotal(BigDecimal.valueOf((Double) data.get("grand_total")));
                 sq.setTransactionDate(parseDate(data.get("transaction_date")));

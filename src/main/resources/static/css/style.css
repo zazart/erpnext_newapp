@@ -133,3 +133,84 @@
     background-color: #000000 !important;
     border-color: #000000 !important;
 }
+
+
+.action-link {
+    text-decoration: none;
+    color: inherit;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.action-link:hover {
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.1); /* Léger gris transparent */
+    cursor: pointer;
+}
+
+
+
+
+.badge {
+    display: inline-block;
+    width: 100px; /* Tu peux ajuster cette largeur selon tes préférences */
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.draft-color {
+    background-color: #afafaf;
+}
+.submitted-color {
+    background-color: #007BFF;
+}
+.ordered-color {
+    background-color: #28A745;
+}
+.cancelled-color {
+    background-color: #DC3545;
+}
+.to-receive-and-bill-color {
+    background-color: #FFC107;
+}
+
+.to-receive-color {
+    background-color: #17A2B8;
+}
+
+.to-bill-color {
+    background-color: #6F42C1;
+}
+
+.completed-color {
+    background-color: #28A745;
+}
+
+.closed-color {
+    background-color: #6C757D;
+}
+
+.on-hold-color {
+    background-color: #FD7E14;
+}
+
+.unpaid-color {
+    background-color: #FFC107;
+}
+
+.partly-paid-color {
+    background-color: #17A2B8;
+}
+
+.paid-color {
+    background-color: #28A745;
+}
+
+.overdue-color {
+    background-color: #DC3545;
+}

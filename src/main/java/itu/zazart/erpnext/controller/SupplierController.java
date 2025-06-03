@@ -1,22 +1,27 @@
 package itu.zazart.erpnext.controller;
 
 import itu.zazart.erpnext.dto.ItemUpdateRequest;
-import itu.zazart.erpnext.model.PurchaseOrder;
-import itu.zazart.erpnext.model.SupplierQuotation;
+import itu.zazart.erpnext.model.buying.PurchaseOrder;
+import itu.zazart.erpnext.model.buying.SupplierQuotation;
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.service.*;
+import itu.zazart.erpnext.service.buying.PurchaseOrderService;
+import itu.zazart.erpnext.service.buying.SupplierQuotationService;
+import itu.zazart.erpnext.service.buying.SupplierService;
+import itu.zazart.erpnext.service.hr.CompanyService;
+import itu.zazart.erpnext.service.hr.SalaryStructureAssignmentService;
+import itu.zazart.erpnext.service.hr.SalaryStructureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import itu.zazart.erpnext.model.Supplier;
+import itu.zazart.erpnext.model.buying.Supplier;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -28,17 +33,19 @@ public class SupplierController {
     private final SupplierService supplierService;
     private final SupplierQuotationService supplierQuotationService;
     private final PurchaseOrderService purchaseOrderService;
+    private final CompanyService employeeService;
 
-    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService) {
+    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService, CompanyService employeeService, CompanyService employeeService1) {
         this.sessionService = sessionService;
         this.supplierService = supplierService;
         this.supplierQuotationService = supplierQuotationService;
         this.purchaseOrderService = purchaseOrderService;
+        this.employeeService = employeeService1;
     }
 
     @GetMapping("/supplier")
     public String supplier(Model model) {
-        if (sessionService.isLoggedIn()) {
+        if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
 
@@ -47,14 +54,16 @@ public class SupplierController {
 
         String sid = sessionService.getErpSid();
         Vector<Supplier> suppliers = supplierService.getAllSuppliers(sid);
+        employeeService.newCompany(sid);
         model.addAttribute("suppliers", suppliers);
+
 
         return "page/supplier";
     }
 
     @GetMapping("/supplier_quotation")
     public String supplierQuotation(Model model, @RequestParam String name) {
-        if (sessionService.isLoggedIn()) {
+        if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
         User user = sessionService.getErpUser();
