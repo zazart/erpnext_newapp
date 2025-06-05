@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -96,6 +97,7 @@ public class ImportService {
 
         for (String format : formats) {
             try {
+                logger.debug("Trying to parse date '{}' with format '{}'", dateStr, format);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format)
                         .withResolverStyle(ResolverStyle.STRICT);
                 TemporalAccessor ta = formatter.parse(dateStr);
@@ -104,9 +106,9 @@ public class ImportService {
                 int year = ta.get(ChronoField.YEAR_OF_ERA);
                 return LocalDate.of(year, month, day);
             } catch (DateTimeParseException e) {
-                logger.error("Invalid date format: {}", dateStr, e);
+                logger.debug("Parsing failed with format '{}'", format);
             } catch (Exception e) {
-                logger.error("Error parsing date: {}", dateStr, e);
+                logger.warn("Unexpected error while parsing date '{}' with format '{}'", dateStr, format, e);
             }
         }
         String errorMessage = "Invalid date format : " + dateStr;
@@ -193,16 +195,14 @@ public class ImportService {
         }
     }
 
-    public boolean isExistingSalaryStructure(DataImport dataImport, List<ImportError> importErrors, String salaryStructureName, ImportError baseError) {
+    public SalaryStructure isExistingSalaryStructure(DataImport dataImport, List<ImportError> importErrors, String salaryStructureName) {
         List<SalaryStructure> salaryStructures = dataImport.getExistingSalaryStructures();
         for (SalaryStructure salaryStructure : salaryStructures) {
             if (salaryStructure.getName().equalsIgnoreCase(salaryStructureName)) {
-                String errorMessage = "The salary structure "+salaryStructureName+ " already exists in the database";
-                newImportError(importErrors, baseError,errorMessage);
-                return true;
+                return salaryStructure;
             }
         }
-        return false;
+        return null;
     }
 
     public SalaryStructure isSalaryStructureInNewList(DataImport dataImport, String salaryStructureName) {
@@ -238,7 +238,7 @@ public class ImportService {
         return null;
     }
 
-    public boolean detectRedefinition(DataImport dataImport,SalaryComponent sc,List<ImportError> importErrors, ImportError baseError) {
+    public boolean detectSalaryComponentRedefinition(DataImport dataImport,SalaryComponent sc,List<ImportError> importErrors, ImportError baseError) {
         SalaryComponent existing = getSalaryComponentIfExist(sc, dataImport, true);
         if (existing!=null) {
             String errorMessage = "Cannot redefine Salary Component '"+existing.getName()+"'";
@@ -260,7 +260,7 @@ public class ImportService {
         // Validation Type here
         salaryComponent.setType(tokens[3].trim());
         salaryComponent.setFormula(tokens[4].trim());
-        if (detectRedefinition(dataImport, salaryComponent, importErrors, baseError)) {
+        if (detectSalaryComponentRedefinition(dataImport, salaryComponent, importErrors, baseError)) {
             return;
         }
         SalaryComponent existing = getSalaryComponentIfExist(salaryComponent, dataImport, false);
@@ -277,7 +277,10 @@ public class ImportService {
 
     public void newSalaryStructure(DataImport dataImport, String[] tokens, List<ImportError> importErrors,ImportError baseError) {
         String salaryStructureName = tokens[0].trim();
-        if (isExistingSalaryStructure(dataImport,importErrors, salaryStructureName, baseError)) {
+        SalaryStructure existingSalaryStructure = isExistingSalaryStructure(dataImport,importErrors, salaryStructureName);
+        if (existingSalaryStructure != null) {
+            String errorMessage = "The salary structure "+salaryStructureName+ " already exists in the database";
+            newImportError(importErrors, baseError,errorMessage);
             return;
         }
 
@@ -333,16 +336,171 @@ public class ImportService {
         }
     }
 
-    public void readAndValidateFile3(DataImport dataImport, List<ImportError> importErrors) {
 
+    public int isSalaryStructureAssignementInNewList(DataImport dataImport,SalaryStructureAssignment ssa) {
+        List<SalaryStructureAssignment> list = dataImport.getSalaryStructureAssignmentList();
+        int statusCode = 0;
+        for (SalaryStructureAssignment item : list) {
+            if (item.getEmployeeObject().getRef().equals(ssa.getEmployeeObject().getRef()) &&
+                item.getFromDate().isEqual(ssa.getFromDate())) {
+                statusCode = 1; // Redefinition
+                if (item.getBase().compareTo(ssa.getBase()) == 0 &&
+                    item.getSalaryStructure().equalsIgnoreCase(ssa.getSalaryStructure())) {
+                    statusCode = 2; // Duplicate line
+                }
+            }
+        }
+        return statusCode;
+    }
+
+    public Employee checkEmployeeByRef(DataImport dataImport, String ref) {
+        List<Employee> employeeList = dataImport.getEmployeeList();
+        for (Employee employee : employeeList) {
+            if (employee.getRef().equalsIgnoreCase(ref)) {
+                return employee;
+            }
+        }
+        return null;
+    }
+
+    public BigDecimal validateBaseAmount(List<ImportError> importErrors, ImportError baseError, String baseAmount) {
+        if (baseAmount == null || baseAmount.trim().isEmpty()) {
+            String errorMessage = "Base amount is missing or empty.";
+            newImportError(importErrors, baseError,errorMessage);
+            return null;
+        }
+        try {
+            String normalized = baseAmount.trim().replace(',', '.');
+            return new BigDecimal(normalized);
+        } catch (NumberFormatException e) {
+            String errorMessage = "Invalid base amount: '" + baseAmount + "'. Expected a numeric value.";
+            newImportError(importErrors, baseError,errorMessage);
+            return null;
+        }
+    }
+
+    public void newSalaryStructureAssignement(DataImport dataImport, String[] tokens, List<ImportError> importErrors,ImportError baseError) {
+        SalaryStructureAssignment ssa = new SalaryStructureAssignment();
+        String ref = tokens[1].trim();
+        String salary = tokens[3].trim();
+
+        SalaryStructure salaryStructure = isExistingSalaryStructure(dataImport,importErrors,salary);
+        if  (salaryStructure == null) {
+            salaryStructure = isSalaryStructureInNewList(dataImport,salary);
+        }
+
+        Employee employee = checkEmployeeByRef(dataImport, ref);
+
+        ssa.setFromDate(validDate(tokens[0].trim(),importErrors, baseError));
+        ssa.setEmployeeObject(employee);
+        ssa.setBase(validateBaseAmount(importErrors, baseError, tokens[2]));
+
+        if (salaryStructure != null) {
+            ssa.setSalaryStructure(salaryStructure.getName());
+            ssa.setCompany(salaryStructure.getCompany());
+            ssa.setCurrency(salaryStructure.getCurrency());
+        }
+
+        int statusCode = isSalaryStructureAssignementInNewList(dataImport,ssa);
+        if (statusCode == 1) {
+            String errorMessage = "The Salary Structure Assignment for employee "+ssa.getEmployeeObject().getRef();
+            errorMessage += " on " + ssa.getFromDate() + " could not be redefined.";
+            newImportError(importErrors, baseError,errorMessage);
+        }
+        if (statusCode == 2) { // Duplicated row
+             return;
+        }
+        dataImport.getSalaryStructureAssignmentList().add(ssa);
+    }
+
+    public void readAndValidateFile3(DataImport dataImport, List<ImportError> importErrors) {
+        dataImport.setSalaryStructureAssignmentList(new ArrayList<>());
+        MultipartFile file = dataImport.getFile3();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            boolean isFirstLine = true;
+            int lineNumber = 0;
+            ImportError baseError = new ImportError();
+            baseError.setFileName("File 3");
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                baseError.setLineNumber(lineNumber);
+                baseError.setRawData(line);
+                if (isFirstLine) {
+                    isFirstLine = false; // Skip header
+                    continue;
+                }
+                String[] tokens = line.split(",");
+
+                if (tokens.length < 4){
+                    String errorMessage = "Invalid row: less than 4 columns";
+                    newImportError(importErrors, baseError,errorMessage);
+                    continue;
+                }
+
+                newSalaryStructureAssignement(dataImport,tokens,importErrors,baseError);
+            }
+        } catch (IOException e) {
+            logger.error("Error while reading file 2", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void readAndValidateFile(DataImport dataImport, List<ImportError> importErrors, int fileNumber, int numberColumn) throws Exception {
+        MultipartFile file = null;
+        switch (fileNumber) {
+            case 1 -> file = dataImport.getFile1();
+            case 2 -> file = dataImport.getFile2();
+            case 3 -> file = dataImport.getFile3();
+            default -> throw new IllegalArgumentException("Unsupported file number: " + fileNumber);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            boolean isFirstLine = true;
+            int lineNumber = 0;
+            ImportError baseError = new ImportError();
+            baseError.setFileName("File "+ fileNumber);
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                baseError.setLineNumber(lineNumber);
+                baseError.setRawData(line);
+                if (isFirstLine) {
+                    isFirstLine = false; // Skip header
+                    continue;
+                }
+                String[] tokens = line.split(",");
+
+                if (tokens.length < numberColumn){
+                    String errorMessage = "Invalid row: less than " +numberColumn+ "columns";
+                    newImportError(importErrors, baseError,errorMessage);
+                    continue;
+                }
+
+                switch (fileNumber) {
+                    case 1 -> newEmployee(dataImport,tokens,importErrors,baseError);
+                    case 2 -> newSalaryStructure(dataImport,tokens,importErrors,baseError);
+                    case 3 -> newSalaryStructureAssignement(dataImport,tokens,importErrors,baseError);
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Error while reading file {}", fileNumber, e);
+            throw new RuntimeException(e);
+        }
     }
 
 
-    public void importData(DataImport dataImport, List<ImportError> importErrors) {
-        readAndValidateFile1(dataImport, importErrors);
-        readAndValidateFile2(dataImport, importErrors);
-        readAndValidateFile3(dataImport, importErrors);
+    public void importData(DataImport dataImport, List<ImportError> importErrors) throws Exception {
+        dataImport.setEmployeeList(new ArrayList<>());
+        dataImport.setCompanyList(new ArrayList<>());
+        dataImport.setSalaryComponentList(new ArrayList<>());
+        dataImport.setSalaryStructureList(new ArrayList<>());
+        dataImport.setSalaryStructureAssignmentList(new ArrayList<>());
 
+        readAndValidateFile(dataImport,importErrors,1,7);
+        readAndValidateFile(dataImport,importErrors,2,6);
+        readAndValidateFile(dataImport,importErrors,3,4);
     }
 
 }

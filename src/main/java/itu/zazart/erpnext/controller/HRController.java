@@ -6,6 +6,8 @@ import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.model.hr.*;
 import itu.zazart.erpnext.service.SessionService;
 import itu.zazart.erpnext.service.hr.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,7 @@ public class HRController {
     private final SalaryComponentService salaryComponentService;
     private final SalaryStructureService salaryStructureService;
     private final SalaryStructureAssignmentService salaryStructureAssignmentService;
+    private static final Logger logger = LoggerFactory.getLogger(HRController.class);
 
     public HRController(SessionService sessionService, ImportService importService, CompanyService companyService, EmployeeService employeeService, SalaryComponentService salaryComponentService, SalaryStructureService salaryStructureService, SalaryStructureAssignmentService salaryStructureAssignmentService) {
         this.sessionService = sessionService;
@@ -47,6 +50,19 @@ public class HRController {
         return "page/hr/import";
     }
 
+
+    public void prepareImportContext(DataImport dataImport) {
+        String sid = sessionService.getErpSid();
+
+        dataImport.setExistingCompanies(companyService.getAllCompanies(sid));
+        dataImport.setExistingEmployees(employeeService.getAllEmployee(sid));
+        dataImport.setExistingSalaryComponents(salaryComponentService.getAllSalaryComponent(sid));
+        dataImport.setExistingSalaryStructures(salaryStructureService.getAllSalaryStructure(sid));
+        dataImport.setExistingSalaryStructureAssignments(salaryStructureAssignmentService.getAllSalaryStructureAssignment(sid));
+        dataImport.initAbbrList();
+    }
+
+
     @PostMapping("/import")
     public String handleFileUpload(@ModelAttribute("dataImport") DataImport dataImport, Model model) {
         if (!sessionService.isLoggedIn()) {
@@ -56,24 +72,13 @@ public class HRController {
         model.addAttribute("user", user);
         List<ImportError> importErrorList = new ArrayList<>();
         try {
-            String sid = sessionService.getErpSid();
-            List<Company> existingCompanies = companyService.getAllCompanies(sid);
-            List<Employee> existingEmployees = employeeService.getAllEmployee(sid);
-            List<SalaryComponent> existingSalaryComponents = salaryComponentService.getAllSalaryComponent(sid);
-            List<SalaryStructure> existingSalaryStructures = salaryStructureService.getAllSalaryStructure(sid);
-            List<SalaryStructureAssignment> existingSalaryStructureAssignments = salaryStructureAssignmentService.getAllSalaryStructureAssignment(sid);
-
-            dataImport.setExistingCompanies(existingCompanies);
-            dataImport.setExistingEmployees(existingEmployees);
-            dataImport.setExistingSalaryComponents(existingSalaryComponents);
-            dataImport.setExistingSalaryStructures(existingSalaryStructures);
-            dataImport.setExistingSalaryStructureAssignments(existingSalaryStructureAssignments);
-            dataImport.initAbbrList();
+            prepareImportContext(dataImport);
 
             importService.importData(dataImport,importErrorList);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error while importing");
             model.addAttribute("importErrorList", importErrorList);
+            logger.error("Error while importing data", e);
             return "page/hr/import";
         }
 

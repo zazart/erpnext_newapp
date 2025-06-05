@@ -14,7 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class DataImport {
     private MultipartFile file1;
     private MultipartFile file2;
@@ -34,6 +33,13 @@ public class DataImport {
     private List<SalaryStructureAssignment> existingSalaryStructureAssignments;
     private List<String> companyAbbrList;
 
+    public DataImport() {
+        this.employeeList = new ArrayList<>();
+        this.companyList = new ArrayList<>();
+        this.salaryComponentList = new ArrayList<>();
+        this.salaryStructureList = new ArrayList<>();
+        this.salaryStructureAssignmentList = new ArrayList<>();
+    }
 
     public void initAbbrList(){
         companyAbbrList = new ArrayList<>();

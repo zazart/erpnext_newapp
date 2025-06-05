@@ -51,6 +51,7 @@ public class SalaryStructureService {
                     salaryStructure.setDocstatus(Utils.toInt(item.get("docstatus")));
                     salaryStructure.setIdx(Utils.toInt(item.get("idx")));
 
+                    salaryStructure.setCompany((String) item.get("company"));
                     salaryStructure.setLetterHead((String) item.get("letter_head"));
                     salaryStructure.setIsActive((String)item.get("is_active"));
                     salaryStructure.setIsDefault((String)item.get("is_default"));

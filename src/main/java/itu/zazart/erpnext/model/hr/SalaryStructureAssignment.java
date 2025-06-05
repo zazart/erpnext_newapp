@@ -38,4 +38,6 @@ public class SalaryStructureAssignment {
     private String amendedFrom;
     private BigDecimal taxableEarningsTillDate;
     private BigDecimal taxDeductedTillDate;
+
+    private Employee employeeObject;
 }
