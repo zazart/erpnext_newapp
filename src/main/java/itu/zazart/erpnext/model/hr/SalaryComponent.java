@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,12 +15,13 @@ import java.util.Date;
 public class SalaryComponent {
     private String name;
     private String owner;
-    private Date creation;
-    private Date modified;
+    private LocalDateTime creation;
+    private LocalDateTime modified;
     private String modifiedBy;
     private int docstatus;
     private int idx;
 
+    private int isActive;
     private String salaryComponent;
     private String salaryComponentAbbr;
     private String type;

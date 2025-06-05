@@ -9,13 +9,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 @Service
 public class SalaryComponentService {
@@ -30,7 +32,7 @@ public class SalaryComponentService {
         this.restTemplate = restTemplate;
     }
 
-    public Vector<SalaryComponent> getAllSalaryComponent(String sid) {
+    public List<SalaryComponent> getAllSalaryComponent(String sid) {
         String url = erpnextApiUrl + "/api/resource/Salary Component?fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
@@ -41,12 +43,12 @@ public class SalaryComponentService {
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-                Vector<SalaryComponent> listSalaryComponent = new Vector<>();
+                List<SalaryComponent> listSalaryComponent = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     SalaryComponent salaryComponent = new SalaryComponent();
                     salaryComponent.setName((String) item.get("name"));
-                    salaryComponent.setCreation(Utils.parseDate(item.get("creation")));
-                    salaryComponent.setModified(Utils.parseDate(item.get("modified")));
+                    salaryComponent.setCreation(Utils.toDateTime(item.get("creation")));
+                    salaryComponent.setModified(Utils.toDateTime(item.get("modified")));
                     salaryComponent.setModifiedBy((String) item.get("modified_by"));
                     salaryComponent.setOwner((String) item.get("owner"));
                     salaryComponent.setDocstatus(Utils.toInt(item.get("docstatus")));
@@ -87,7 +89,34 @@ public class SalaryComponentService {
         } catch (Exception e) {
             logger.error("Error fetching Salary Component from ERPNext: {}", e.getMessage(), e);
         }
-        return new Vector<>();
+        return new ArrayList<>();
     }
+
+
+    public String newSalaryComponent(String sid, SalaryComponent salaryComponent) {
+        String url = erpnextApiUrl + "/api/resource/Salary Component";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("salary_component", salaryComponent.getSalaryComponent());
+            requestBody.put("salary_component_abbr", salaryComponent.getSalaryComponentAbbr());
+            requestBody.put("type", salaryComponent.getType());
+            requestBody.put("is_active", 1);
+            requestBody.put("amount_based_on_formula", 1);
+            requestBody.put("depends_on_payment_days", 0);
+            requestBody.put("formula", salaryComponent.getFormula());
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Salary Component", e);
+        }
+    }
+
 
 }

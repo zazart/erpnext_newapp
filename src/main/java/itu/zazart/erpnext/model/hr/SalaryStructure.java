@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,8 +16,8 @@ import java.util.Date;
 public class SalaryStructure {
     private String name;
     private String owner;
-    private Date creation;
-    private Date modified;
+    private LocalDateTime creation;
+    private LocalDateTime modified;
     private String modifiedBy;
     private int docstatus;
     private int idx;
@@ -38,6 +39,6 @@ public class SalaryStructure {
     private BigDecimal netPay;
     private String modeOfPayment;
     private String paymentAccount;
-    private String earnings;
-    private String deductions;
+    private List<SalaryComponent> earnings;
+    private List<SalaryComponent> deductions;
 }
