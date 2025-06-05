@@ -98,7 +98,8 @@ public class SalaryStructureService {
             for (SalaryComponent earning : salaryStructure.getEarnings()) {
                 Map<String, Object> earningMap = new HashMap<>();
                 earningMap.put("salary_component", earning.getSalaryComponent());
-                earningMap.put("amount", earning.getAmount());
+                earningMap.put("amount_based_on_formula", 1);
+                earningMap.put("formula", earning.getFormula());
                 earningsList.add(earningMap);
             }
             requestBody.put("earnings", earningsList);
@@ -108,7 +109,8 @@ public class SalaryStructureService {
             for (SalaryComponent deduction : salaryStructure.getDeductions()) {
                 Map<String, Object> deductionMap = new HashMap<>();
                 deductionMap.put("salary_component", deduction.getSalaryComponent());
-                deductionMap.put("amount", deduction.getAmount());
+                deductionMap.put("amount_based_on_formula", 1);
+                deductionMap.put("formula", deduction.getFormula());
                 deductionsList.add(deductionMap);
             }
             requestBody.put("deductions", deductionsList);

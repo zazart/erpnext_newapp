@@ -1,6 +1,5 @@
 package itu.zazart.erpnext.service.hr;
 
-import itu.zazart.erpnext.model.hr.Company;
 import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,6 +30,25 @@ public class EmployeeService {
         this.restTemplate = restTemplate;
     }
 
+    public void setEmployeeFields(Map<String, Object> data, Employee employee) {
+        employee.setName((String) data.get("name"));
+        employee.setCreation(Utils.toDateTime(data.get("creation")));
+        employee.setModified(Utils.toDateTime(data.get("modified")));
+        employee.setModifiedBy((String) data.get("modified_by"));
+        employee.setOwner((String) data.get("owner"));
+        employee.setDocstatus(Utils.toInt(data.get("docstatus")));
+        employee.setEmployee((String) data.get("employee"));
+        employee.setFirstName((String) data.get("first_name"));
+        employee.setMiddleName((String) data.get("middle_name"));
+        employee.setLastName((String) data.get("last_name"));
+        employee.setEmployeeName((String) data.get("employee_name"));
+        employee.setDateOfJoining(Utils.toDate(data.get("date_of_joining")));
+        employee.setGender((String) data.get("gender"));
+        employee.setDateOfBirth(Utils.toDate(data.get("date_of_birth")));
+        employee.setStatus((String) data.get("status"));
+        employee.setCompany((String) data.get("company"));
+    }
+
     public List<Employee> getAllEmployee(String sid) {
         String url = erpnextApiUrl + "/api/resource/Employee?fields=[\"*\"]";
 
@@ -46,21 +63,7 @@ public class EmployeeService {
                 List<Employee> listEmployee = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     Employee employee = new Employee();
-                    employee.setName((String) item.get("name"));
-                    employee.setCreation(Utils.toDateTime(item.get("creation")));
-                    employee.setModified(Utils.toDateTime(item.get("modified")));
-                    employee.setModifiedBy((String) item.get("modified_by"));
-                    employee.setOwner((String) item.get("owner"));
-                    employee.setDocstatus(Utils.toInt(item.get("docstatus")));
-                    employee.setEmployee((String) item.get("employee"));
-                    employee.setFirstName((String) item.get("first_name"));
-                    employee.setMiddleName((String) item.get("middle_name"));
-                    employee.setLastName((String) item.get("last_name"));
-                    employee.setEmployeeName((String) item.get("employee_name"));
-                    employee.setGender((String) item.get("gender"));
-                    employee.setDateOfBirth(Utils.toDate(item.get("date_of_birth")));
-                    employee.setStatus((String) item.get("status"));
-                    employee.setCompany((String) item.get("company"));
+                    setEmployeeFields(item, employee);
                     listEmployee.add(employee);
                     logger.debug("Mapped Employee: {}", employee.getName());
                 }
@@ -74,7 +77,7 @@ public class EmployeeService {
         return new ArrayList<>();
     }
 
-    public String newEmployee(String sid, Employee employee) {
+    public void newEmployee(String sid, Employee employee) {
         String url = erpnextApiUrl + "/api/resource/Employee";
 
         HttpHeaders headers = new HttpHeaders();
@@ -91,8 +94,15 @@ public class EmployeeService {
             requestBody.put("gender", employee.getGender());
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            return response.getBody();
+            var response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+
+            Map<String, Object> body = response.getBody();
+            if (body != null && body.containsKey("data")) {
+                Map<String, Object> data = (Map<String, Object>) body.get("data");
+                setEmployeeFields(data, employee);
+            } else {
+                logger.warn("No 'data' field found in the response body.");
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error creating new Employee", e);
         }

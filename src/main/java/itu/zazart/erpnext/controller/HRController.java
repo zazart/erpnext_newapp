@@ -21,21 +21,11 @@ import java.util.List;
 public class HRController {
     private final SessionService sessionService;
     private final ImportService importService;
-    private final CompanyService companyService;
-    private final EmployeeService employeeService;
-    private final SalaryComponentService salaryComponentService;
-    private final SalaryStructureService salaryStructureService;
-    private final SalaryStructureAssignmentService salaryStructureAssignmentService;
     private static final Logger logger = LoggerFactory.getLogger(HRController.class);
 
-    public HRController(SessionService sessionService, ImportService importService, CompanyService companyService, EmployeeService employeeService, SalaryComponentService salaryComponentService, SalaryStructureService salaryStructureService, SalaryStructureAssignmentService salaryStructureAssignmentService) {
+    public HRController(SessionService sessionService, ImportService importService) {
         this.sessionService = sessionService;
         this.importService = importService;
-        this.companyService = companyService;
-        this.employeeService = employeeService;
-        this.salaryComponentService = salaryComponentService;
-        this.salaryStructureService = salaryStructureService;
-        this.salaryStructureAssignmentService = salaryStructureAssignmentService;
     }
 
     @GetMapping("/import")
@@ -51,16 +41,7 @@ public class HRController {
     }
 
 
-    public void prepareImportContext(DataImport dataImport) {
-        String sid = sessionService.getErpSid();
 
-        dataImport.setExistingCompanies(companyService.getAllCompanies(sid));
-        dataImport.setExistingEmployees(employeeService.getAllEmployee(sid));
-        dataImport.setExistingSalaryComponents(salaryComponentService.getAllSalaryComponent(sid));
-        dataImport.setExistingSalaryStructures(salaryStructureService.getAllSalaryStructure(sid));
-        dataImport.setExistingSalaryStructureAssignments(salaryStructureAssignmentService.getAllSalaryStructureAssignment(sid));
-        dataImport.initAbbrList();
-    }
 
 
     @PostMapping("/import")
@@ -72,9 +53,8 @@ public class HRController {
         model.addAttribute("user", user);
         List<ImportError> importErrorList = new ArrayList<>();
         try {
-            prepareImportContext(dataImport);
-
-            importService.importData(dataImport,importErrorList);
+            String sid = sessionService.getErpSid();
+            importService.importData(dataImport,importErrorList,sid);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error while importing");
             model.addAttribute("importErrorList", importErrorList);

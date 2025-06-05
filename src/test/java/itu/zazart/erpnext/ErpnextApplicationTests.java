@@ -40,6 +40,21 @@ class ErpnextApplicationTests {
 	}
 
 	@Test
+	void newEmployee() {
+		Employee employee = new Employee();
+		employee.setFirstName("Jean");
+		employee.setLastName("Dupont");
+		employee.setCompany("My Company");
+		employee.setStatus("Active");
+		employee.setDateOfBirth(LocalDate.parse("1985-06-15"));
+		employee.setDateOfJoining(LocalDate.parse("2023-03-01"));
+		employee.setGender("Male");
+
+		employeeService.newEmployee(testSid, employee);
+		System.out.println("done");
+	}
+
+	@Test
 	void parse(){
 		String dateStr = "03/04/2024";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")

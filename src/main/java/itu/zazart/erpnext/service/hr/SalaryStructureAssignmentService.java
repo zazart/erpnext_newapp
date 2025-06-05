@@ -93,9 +93,8 @@ public class SalaryStructureAssignmentService {
             requestBody.put("from_date", Utils.formatDate(assignment.getFromDate()));
             requestBody.put("company", assignment.getCompany());
             requestBody.put("currency", assignment.getCurrency());
-            requestBody.put("docstatus", assignment.getDocstatus());
+            requestBody.put("docstatus", 1);
             requestBody.put("base", assignment.getBase());
-            requestBody.put("variable", assignment.getVariable());
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);

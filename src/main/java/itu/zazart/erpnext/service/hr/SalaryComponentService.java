@@ -104,13 +104,10 @@ public class SalaryComponentService {
             requestBody.put("salary_component", salaryComponent.getSalaryComponent());
             requestBody.put("salary_component_abbr", salaryComponent.getSalaryComponentAbbr());
             requestBody.put("type", salaryComponent.getType());
-            requestBody.put("description", salaryComponent.getDescription());
-            requestBody.put("default_amount", salaryComponent.getAmount());
-            requestBody.put("is_taxable", salaryComponent.getIsTaxApplicable());
             requestBody.put("is_active", 1);
-            requestBody.put("amount_based_on_formula", salaryComponent.getAmountBasedOnFormula());
+            requestBody.put("amount_based_on_formula", 1);
+            requestBody.put("depends_on_payment_days", 0);
             requestBody.put("formula", salaryComponent.getFormula());
-            requestBody.put("condition", salaryComponent.getCondition());
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);

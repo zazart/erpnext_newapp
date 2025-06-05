@@ -23,7 +23,20 @@ import java.util.List;
 
 @Service
 public class ImportService {
+    private final CompanyService companyService;
+    private final EmployeeService employeeService;
+    private final SalaryComponentService salaryComponentService;
+    private final SalaryStructureService salaryStructureService;
+    private final SalaryStructureAssignmentService salaryStructureAssignmentService;
     private static final Logger logger = LoggerFactory.getLogger(ImportService.class);
+
+    public ImportService(CompanyService companyService, EmployeeService employeeService, SalaryComponentService salaryComponentService, SalaryStructureService salaryStructureService, SalaryStructureAssignmentService salaryStructureAssignmentService) {
+        this.companyService = companyService;
+        this.employeeService = employeeService;
+        this.salaryComponentService = salaryComponentService;
+        this.salaryStructureService = salaryStructureService;
+        this.salaryStructureAssignmentService = salaryStructureAssignmentService;
+    }
 
     public String checkNaturalCompanyAbbreviation(String companyName) {
         if (companyName == null || companyName.trim().isEmpty()) {
@@ -216,14 +229,23 @@ public class ImportService {
         return false;
     }
 
-    public void validateComponent(DataImport dataImport, SalaryStructure ss, String[] tokens,List<ImportError> importErrors,ImportError baseError) {
+    private static SalaryComponent getSalaryComponent(String[] tokens) {
         SalaryComponent salaryComponent = new SalaryComponent();
         salaryComponent.setName(tokens[1].trim());
         salaryComponent.setSalaryComponent(tokens[1].trim());
         salaryComponent.setSalaryComponentAbbr(tokens[2].trim());
         // Validation Type here
-        salaryComponent.setType(tokens[3].trim());
+        String formatted = tokens[3].trim().toLowerCase();
+        formatted = formatted.substring(0, 1).toUpperCase() + formatted.substring(1);
+        salaryComponent.setType(formatted);
+
         salaryComponent.setFormula(tokens[4].trim());
+        return salaryComponent;
+    }
+
+
+    public void validateComponent(DataImport dataImport, SalaryStructure ss, String[] tokens,List<ImportError> importErrors,ImportError baseError) {
+        SalaryComponent salaryComponent = getSalaryComponent(tokens);
         if (detectSalaryComponentRedefinition(dataImport, salaryComponent, importErrors, baseError)) {
             return;
         }
@@ -385,10 +407,45 @@ public class ImportService {
     }
 
 
-    public void importData(DataImport dataImport, List<ImportError> importErrors) throws Exception {
+    public void prepareImportContext(DataImport dataImport,String sid) {
+        dataImport.setExistingCompanies(companyService.getAllCompanies(sid));
+        dataImport.setExistingEmployees(employeeService.getAllEmployee(sid));
+        dataImport.setExistingSalaryComponents(salaryComponentService.getAllSalaryComponent(sid));
+        dataImport.setExistingSalaryStructures(salaryStructureService.getAllSalaryStructure(sid));
+        dataImport.setExistingSalaryStructureAssignments(salaryStructureAssignmentService.getAllSalaryStructureAssignment(sid));
+        dataImport.initAbbrList();
+    }
+
+    public void insertAll(DataImport dataImport, String sid) {
+        for (Company company : dataImport.getCompanyList()) {// Company
+            company.setCompanyName(company.getName());
+            companyService.newCompany(sid, company);
+        }
+        for (Employee employee : dataImport.getEmployeeList()) {    // Employee
+            employeeService.newEmployee(sid, employee);
+        }
+        for (SalaryComponent salaryComponent : dataImport.getSalaryComponentList()) {   // Salary Component
+            salaryComponentService.newSalaryComponent(sid, salaryComponent);
+        }
+        for (SalaryStructure salaryStructure : dataImport.getSalaryStructureList()) {   // Salary Structure
+            salaryStructureService.newSalaryStructure(sid, salaryStructure);
+        }
+        for (SalaryStructureAssignment  ssa : dataImport.getSalaryStructureAssignmentList()) {  // Salary Structure Assignement
+            ssa.setEmployee(ssa.getEmployeeObject().getName());
+            salaryStructureAssignmentService.newSalaryStructureAssignment(sid, ssa);
+        }
+    }
+
+    public void importData(DataImport dataImport, List<ImportError> importErrors,String sid) throws Exception {
+        prepareImportContext(dataImport,sid);
         readAndValidateFile(dataImport,importErrors,1,7);
         readAndValidateFile(dataImport,importErrors,2,6);
         readAndValidateFile(dataImport,importErrors,3,4);
+
+        if (!importErrors.isEmpty()){
+            return;
+        }
+        insertAll(dataImport,sid);
     }
 
 }
