@@ -161,40 +161,6 @@ public class ImportService {
         dataImport.getEmployeeList().add(emp);
     }
 
-    public void readAndValidateFile1(DataImport dataImport, List<ImportError> importErrors) {
-        dataImport.setEmployeeList(new ArrayList<>());
-        dataImport.setCompanyList(new ArrayList<>());
-        MultipartFile file = dataImport.getFile1();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            boolean isFirstLine = true;
-            int lineNumber = 0;
-            ImportError baseError = new ImportError();
-            baseError.setFileName("File 1");
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                baseError.setLineNumber(lineNumber);
-                baseError.setRawData(line);
-                if (isFirstLine) {
-                    isFirstLine = false; // Skip header
-                    continue;
-                }
-                String[] tokens = line.split(",");
-                if (tokens.length < 7){
-                    String errorMessage = "Invalid row: less than 7 columns";
-                    newImportError(importErrors, baseError,errorMessage);
-                    continue;
-                }
-
-                newEmployee(dataImport,tokens,importErrors,baseError);  // New Employee
-            }
-        } catch (IOException e) {
-            logger.error("Error while reading file 1", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     public SalaryStructure isExistingSalaryStructure(DataImport dataImport, List<ImportError> importErrors, String salaryStructureName) {
         List<SalaryStructure> salaryStructures = dataImport.getExistingSalaryStructures();
         for (SalaryStructure salaryStructure : salaryStructures) {
@@ -250,8 +216,6 @@ public class ImportService {
         return false;
     }
 
-
-
     public void validateComponent(DataImport dataImport, SalaryStructure ss, String[] tokens,List<ImportError> importErrors,ImportError baseError) {
         SalaryComponent salaryComponent = new SalaryComponent();
         salaryComponent.setName(tokens[1].trim());
@@ -300,42 +264,6 @@ public class ImportService {
             dataImport.getSalaryStructureList().add(newSalaryStructure);
         }
     }
-
-    public void readAndValidateFile2(DataImport dataImport, List<ImportError> importErrors) {
-        dataImport.setSalaryComponentList(new ArrayList<>());
-        dataImport.setSalaryStructureList(new ArrayList<>());
-        MultipartFile file = dataImport.getFile2();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            boolean isFirstLine = true;
-            int lineNumber = 0;
-            ImportError baseError = new ImportError();
-            baseError.setFileName("File 2");
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                baseError.setLineNumber(lineNumber);
-                baseError.setRawData(line);
-                if (isFirstLine) {
-                    isFirstLine = false; // Skip header
-                    continue;
-                }
-                String[] tokens = line.split(",");
-
-                if (tokens.length < 6){
-                    String errorMessage = "Invalid row: less than 6 columns";
-                    newImportError(importErrors, baseError,errorMessage);
-                    continue;
-                }
-
-                newSalaryStructure(dataImport,tokens,importErrors,baseError);
-            }
-        } catch (IOException e) {
-            logger.error("Error while reading file 2", e);
-            throw new RuntimeException(e);
-        }
-    }
-
 
     public int isSalaryStructureAssignementInNewList(DataImport dataImport,SalaryStructureAssignment ssa) {
         List<SalaryStructureAssignment> list = dataImport.getSalaryStructureAssignmentList();
@@ -413,40 +341,6 @@ public class ImportService {
         dataImport.getSalaryStructureAssignmentList().add(ssa);
     }
 
-    public void readAndValidateFile3(DataImport dataImport, List<ImportError> importErrors) {
-        dataImport.setSalaryStructureAssignmentList(new ArrayList<>());
-        MultipartFile file = dataImport.getFile3();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            boolean isFirstLine = true;
-            int lineNumber = 0;
-            ImportError baseError = new ImportError();
-            baseError.setFileName("File 3");
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                baseError.setLineNumber(lineNumber);
-                baseError.setRawData(line);
-                if (isFirstLine) {
-                    isFirstLine = false; // Skip header
-                    continue;
-                }
-                String[] tokens = line.split(",");
-
-                if (tokens.length < 4){
-                    String errorMessage = "Invalid row: less than 4 columns";
-                    newImportError(importErrors, baseError,errorMessage);
-                    continue;
-                }
-
-                newSalaryStructureAssignement(dataImport,tokens,importErrors,baseError);
-            }
-        } catch (IOException e) {
-            logger.error("Error while reading file 2", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     public void readAndValidateFile(DataImport dataImport, List<ImportError> importErrors, int fileNumber, int numberColumn) throws Exception {
         MultipartFile file = null;
         switch (fileNumber) {
@@ -492,12 +386,6 @@ public class ImportService {
 
 
     public void importData(DataImport dataImport, List<ImportError> importErrors) throws Exception {
-        dataImport.setEmployeeList(new ArrayList<>());
-        dataImport.setCompanyList(new ArrayList<>());
-        dataImport.setSalaryComponentList(new ArrayList<>());
-        dataImport.setSalaryStructureList(new ArrayList<>());
-        dataImport.setSalaryStructureAssignmentList(new ArrayList<>());
-
         readAndValidateFile(dataImport,importErrors,1,7);
         readAndValidateFile(dataImport,importErrors,2,6);
         readAndValidateFile(dataImport,importErrors,3,4);
