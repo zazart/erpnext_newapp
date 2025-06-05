@@ -8,13 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 @Service
 public class SalaryStructureAssignmentService {
@@ -29,7 +28,7 @@ public class SalaryStructureAssignmentService {
         this.restTemplate = restTemplate;
     }
 
-    public Vector<SalaryStructureAssignment> getAllSalaryStructureAssignment(String sid) {
+    public List<SalaryStructureAssignment> getAllSalaryStructureAssignment(String sid) {
         String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment?fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
@@ -40,12 +39,12 @@ public class SalaryStructureAssignmentService {
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-                Vector<SalaryStructureAssignment> listSalaryStructureAssignment = new Vector<>();
+                List<SalaryStructureAssignment> listSalaryStructureAssignment = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     SalaryStructureAssignment salaryStructureAssignment = new SalaryStructureAssignment();
                     salaryStructureAssignment.setName((String) item.get("name"));
-                    salaryStructureAssignment.setCreation(Utils.parseDate(item.get("creation")));
-                    salaryStructureAssignment.setModified(Utils.parseDate(item.get("modified")));
+                    salaryStructureAssignment.setCreation(Utils.toDateTime(item.get("creation")));
+                    salaryStructureAssignment.setModified(Utils.toDateTime(item.get("modified")));
                     salaryStructureAssignment.setModifiedBy((String) item.get("modified_by"));
                     salaryStructureAssignment.setOwner((String) item.get("owner"));
                     salaryStructureAssignment.setDocstatus(Utils.toInt(item.get("docstatus")));
@@ -57,7 +56,7 @@ public class SalaryStructureAssignmentService {
                     salaryStructureAssignment.setDesignation((String) item.get("designation"));
                     salaryStructureAssignment.setGrade((String) item.get("grade"));
                     salaryStructureAssignment.setSalaryStructure((String) item.get("salary_structure"));
-                    salaryStructureAssignment.setFromDate(Utils.parseDate(item.get("from_date")));
+                    salaryStructureAssignment.setFromDate(Utils.toDate(item.get("from_date")));
                     salaryStructureAssignment.setIncomeTaxSlab((String) item.get("income_tax_slab"));
                     salaryStructureAssignment.setCompany((String) item.get("company"));
                     salaryStructureAssignment.setPayrollPayableAccount((String) item.get("payroll_payable_account"));
@@ -78,7 +77,33 @@ public class SalaryStructureAssignmentService {
         } catch (Exception e) {
             logger.error("Error fetching Salary Structure Assignment from ERPNext: {}", e.getMessage(), e);
         }
-        return new Vector<>();
+        return new ArrayList<>();
     }
+
+
+    public String newSalaryStructureAssignment(String sid, SalaryStructureAssignment assignment) {
+        String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("employee", assignment.getEmployee());
+            requestBody.put("salary_structure", assignment.getSalaryStructure());
+            requestBody.put("from_date", Utils.formatDate(assignment.getFromDate()));
+            requestBody.put("company", assignment.getCompany());
+            requestBody.put("currency", assignment.getCurrency());
+            requestBody.put("docstatus", assignment.getDocstatus());
+            requestBody.put("base", assignment.getBase());
+            requestBody.put("variable", assignment.getVariable());
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Salary Structure Assignment", e);
+        }
+    }
+
 
 }

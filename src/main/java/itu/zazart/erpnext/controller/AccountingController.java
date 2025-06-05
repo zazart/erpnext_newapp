@@ -40,7 +40,7 @@ public class AccountingController {
         Vector<PurchaseInvoice> purchaseInvoices = accountingService.getAllPurchaseInvoices(sid);
         model.addAttribute("purchaseInvoices", purchaseInvoices);
 
-        return "page/accounting";
+        return "page/buying/accounting";
     }
 
     @PostMapping("/newPaymentEntry")

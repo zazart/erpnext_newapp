@@ -6,17 +6,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Employee {
+    private String ref;
+
     private String name;
     private String owner;
-    private Date creation;
-    private Date modified;
+    private LocalDateTime creation;
+    private LocalDateTime modified;
     private String modifiedBy;
     private int docstatus;
     private int idx;
@@ -28,9 +31,9 @@ public class Employee {
     private String lastName;
     private String employeeName;
     private String gender;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
     private String salutation;
-    private Date dateOfJoining;
+    private LocalDate dateOfJoining;
     private String image;
     private String status;
     private String userId;
@@ -44,11 +47,11 @@ public class Employee {
     private String branch;
     private String grade;
     private String jobApplicant;
-    private Date scheduledConfirmationDate;
-    private Date finalConfirmationDate;
-    private Date contractEndDate;
+    private LocalDate scheduledConfirmationDate;
+    private LocalDate finalConfirmationDate;
+    private LocalDate contractEndDate;
     private int noticeNumberOfDays;
-    private Date dateOfRetirement;
+    private LocalDate dateOfRetirement;
     private String cellNumber;
     private String personalEmail;
     private String companyEmail;
@@ -82,16 +85,16 @@ public class Employee {
     private String healthInsuranceProvider;
     private String healthInsuranceNo;
     private String passportNumber;
-    private Date validUpto;
-    private Date dateOfIssue;
+    private LocalDate validUpto;
+    private LocalDate dateOfIssue;
     private String placeOfIssue;
     private String bio;
-    private Date resignationLetterDate;
-    private Date relievingDate;
-    private Date heldOn;
+    private LocalDate resignationLetterDate;
+    private LocalDate relievingDate;
+    private LocalDate heldOn;
     private String newWorkplace;
     private String leaveEncashed;
-    private Date encashmentDate;
+    private LocalDate encashmentDate;
     private String reasonForLeaving;
     private String feedback;
     private int lft;

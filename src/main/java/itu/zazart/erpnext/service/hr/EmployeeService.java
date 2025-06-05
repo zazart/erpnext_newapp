@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 @Service
 public class EmployeeService {
@@ -30,7 +32,7 @@ public class EmployeeService {
         this.restTemplate = restTemplate;
     }
 
-    public Vector<Employee> getAllEmployee(String sid) {
+    public List<Employee> getAllEmployee(String sid) {
         String url = erpnextApiUrl + "/api/resource/Employee?fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
@@ -41,12 +43,12 @@ public class EmployeeService {
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-                Vector<Employee> listEmployee = new Vector<>();
+                List<Employee> listEmployee = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     Employee employee = new Employee();
                     employee.setName((String) item.get("name"));
-                    employee.setCreation(Utils.parseDate(item.get("creation")));
-                    employee.setModified(Utils.parseDate(item.get("modified")));
+                    employee.setCreation(Utils.toDateTime(item.get("creation")));
+                    employee.setModified(Utils.toDateTime(item.get("modified")));
                     employee.setModifiedBy((String) item.get("modified_by"));
                     employee.setOwner((String) item.get("owner"));
                     employee.setDocstatus(Utils.toInt(item.get("docstatus")));
@@ -56,7 +58,7 @@ public class EmployeeService {
                     employee.setLastName((String) item.get("last_name"));
                     employee.setEmployeeName((String) item.get("employee_name"));
                     employee.setGender((String) item.get("gender"));
-                    employee.setDateOfBirth(Utils.parseDate(item.get("date_of_birth")));
+                    employee.setDateOfBirth(Utils.toDate(item.get("date_of_birth")));
                     employee.setStatus((String) item.get("status"));
                     employee.setCompany((String) item.get("company"));
                     listEmployee.add(employee);
@@ -69,6 +71,30 @@ public class EmployeeService {
         } catch (Exception e) {
             logger.error("Error fetching Employee from ERPNext: {}", e.getMessage(), e);
         }
-        return new Vector<>();
+        return new ArrayList<>();
+    }
+
+    public String newEmployee(String sid, Employee employee) {
+        String url = erpnextApiUrl + "/api/resource/Employee";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        try {
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("first_name", employee.getFirstName());
+            requestBody.put("last_name", employee.getLastName());
+            requestBody.put("company", employee.getCompany());
+            requestBody.put("status", "Active");
+            requestBody.put("date_of_birth", Utils.formatDate(employee.getDateOfBirth()));
+            requestBody.put("date_of_joining",Utils.formatDate(employee.getDateOfJoining()));
+            requestBody.put("gender", employee.getGender());
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Employee", e);
+        }
     }
 }

@@ -8,9 +8,6 @@ import itu.zazart.erpnext.service.*;
 import itu.zazart.erpnext.service.buying.PurchaseOrderService;
 import itu.zazart.erpnext.service.buying.SupplierQuotationService;
 import itu.zazart.erpnext.service.buying.SupplierService;
-import itu.zazart.erpnext.service.hr.CompanyService;
-import itu.zazart.erpnext.service.hr.SalaryStructureAssignmentService;
-import itu.zazart.erpnext.service.hr.SalaryStructureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,9 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 @Controller
 public class SupplierController {
@@ -33,18 +28,16 @@ public class SupplierController {
     private final SupplierService supplierService;
     private final SupplierQuotationService supplierQuotationService;
     private final PurchaseOrderService purchaseOrderService;
-    private final CompanyService employeeService;
 
-    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService, CompanyService employeeService, CompanyService employeeService1) {
+    public SupplierController(SessionService sessionService, SupplierService supplierService, SupplierQuotationService supplierQuotationService, PurchaseOrderService purchaseOrderService) {
         this.sessionService = sessionService;
         this.supplierService = supplierService;
         this.supplierQuotationService = supplierQuotationService;
         this.purchaseOrderService = purchaseOrderService;
-        this.employeeService = employeeService1;
     }
 
     @GetMapping("/supplier")
-    public String supplier(Model model) {
+    public String supplier(Model model){
         if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
@@ -54,11 +47,10 @@ public class SupplierController {
 
         String sid = sessionService.getErpSid();
         Vector<Supplier> suppliers = supplierService.getAllSuppliers(sid);
-        employeeService.newCompany(sid);
         model.addAttribute("suppliers", suppliers);
 
 
-        return "page/supplier";
+        return "page/buying/supplier";
     }
 
     @GetMapping("/supplier_quotation")
@@ -79,7 +71,7 @@ public class SupplierController {
         Vector<PurchaseOrder> purchaseOrders = purchaseOrderService.getPurchaseOrderBySupllier(sid,name);
         model.addAttribute("purchaseOrders", purchaseOrders);
 
-        return "page/supplier_quotation";
+        return "page/buying/supplier_quotation";
     }
 
     @GetMapping("/itemsBySupplierQuotation")

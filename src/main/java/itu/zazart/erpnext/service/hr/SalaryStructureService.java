@@ -9,13 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 @Service
 public class SalaryStructureService {
@@ -30,7 +29,7 @@ public class SalaryStructureService {
         this.restTemplate = restTemplate;
     }
 
-    public Vector<SalaryStructure> getAllSalaryStructure(String sid) {
+    public List<SalaryStructure> getAllSalaryStructure(String sid) {
         String url = erpnextApiUrl + "/api/resource/Salary Structure?fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
@@ -41,12 +40,12 @@ public class SalaryStructureService {
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-                Vector<SalaryStructure> listSalaryStructure = new Vector<>();
+                List<SalaryStructure> listSalaryStructure = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     SalaryStructure salaryStructure = new SalaryStructure();
                     salaryStructure.setName((String) item.get("name"));
-                    salaryStructure.setCreation(Utils.parseDate(item.get("creation")));
-                    salaryStructure.setModified(Utils.parseDate(item.get("modified")));
+                    salaryStructure.setCreation(Utils.toDateTime(item.get("creation")));
+                    salaryStructure.setModified(Utils.toDateTime(item.get("modified")));
                     salaryStructure.setModifiedBy((String) item.get("modified_by"));
                     salaryStructure.setOwner((String) item.get("owner"));
                     salaryStructure.setDocstatus(Utils.toInt(item.get("docstatus")));
@@ -78,7 +77,49 @@ public class SalaryStructureService {
         } catch (Exception e) {
             logger.error("Error fetching Salary Structure from ERPNext: {}", e.getMessage(), e);
         }
-        return new Vector<>();
+        return new ArrayList<>();
     }
+    public String newSalaryStructure(String sid, SalaryStructure salaryStructure) {
+        String url = erpnextApiUrl + "/api/resource/Salary Structure";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("name", salaryStructure.getName());
+            requestBody.put("company", salaryStructure.getCompany());
+            requestBody.put("docstatus", 1);
+            requestBody.put("currency", salaryStructure.getCurrency());
+            requestBody.put("is_active", "Yes");
+
+            // Convert earnings
+            List<Map<String, Object>> earningsList = new ArrayList<>();
+            for (SalaryComponent earning : salaryStructure.getEarnings()) {
+                Map<String, Object> earningMap = new HashMap<>();
+                earningMap.put("salary_component", earning.getSalaryComponent());
+                earningMap.put("amount", earning.getAmount());
+                earningsList.add(earningMap);
+            }
+            requestBody.put("earnings", earningsList);
+
+            // Convert deductions
+            List<Map<String, Object>> deductionsList = new ArrayList<>();
+            for (SalaryComponent deduction : salaryStructure.getDeductions()) {
+                Map<String, Object> deductionMap = new HashMap<>();
+                deductionMap.put("salary_component", deduction.getSalaryComponent());
+                deductionMap.put("amount", deduction.getAmount());
+                deductionsList.add(deductionMap);
+            }
+            requestBody.put("deductions", deductionsList);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Salary Structure", e);
+        }
+    }
+
 
 }

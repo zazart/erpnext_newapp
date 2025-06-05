@@ -13,10 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import itu.zazart.erpnext.service.Utils;
 
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 @Service
 public class CompanyService {
@@ -31,7 +29,7 @@ public class CompanyService {
         this.restTemplate = restTemplate;
     }
 
-    public Vector<Company> getAllCompanies(String sid) {
+    public List<Company> getAllCompanies(String sid) {
         String url = erpnextApiUrl + "/api/resource/Company?fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
@@ -43,12 +41,12 @@ public class CompanyService {
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-                Vector<Company> companies = new Vector<>();
+                List<Company> companies = new ArrayList<>();
                 for (Map<String, Object> item : data) {
                     Company comp = new Company();
                     comp.setName((String) item.get("name"));
-                    comp.setCreation(Utils.parseDate(item.get("creation")));
-                    comp.setModified(Utils.parseDate(item.get("modified")));
+                    comp.setCreation(Utils.toDateTime(item.get("creation")));
+                    comp.setModified(Utils.toDateTime(item.get("modified")));
                     comp.setModifiedBy((String) item.get("modified_by"));
                     comp.setOwner((String) item.get("owner"));
                     comp.setDocstatus(Utils.toInt(item.get("docstatus")));
@@ -67,10 +65,10 @@ public class CompanyService {
         } catch (Exception e) {
             logger.error("Error fetching Company from ERPNext: {}", e.getMessage(), e);
         }
-        return new Vector<>();
+        return new ArrayList<>();
     }
 
-    public String newCompany(String sid) {
+    public String newCompany(String sid,Company company) {
         String url = erpnextApiUrl + "/api/resource/Company";
 
         HttpHeaders headers = new HttpHeaders();
@@ -78,11 +76,11 @@ public class CompanyService {
         try {
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("company_name", "Post Java Company Test");
-            requestBody.put("abbr", "PJCT");
-            requestBody.put("default_currency", "USD");
-            requestBody.put("country", "Madagascar");
-            requestBody.put("is_group", 0);
+            requestBody.put("company_name", company.getCompanyName());
+            requestBody.put("abbr", company.getAbbr());
+            requestBody.put("default_currency", company.getDefaultCurrency());
+            requestBody.put("country", company.getCountry());
+            requestBody.put("is_group", company.getIsGroup());
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);

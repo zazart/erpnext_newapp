@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -13,8 +15,8 @@ import java.util.Date;
 public class Company {
     private String name;
     private String owner;
-    private Date creation;
-    private Date modified;
+    private LocalDateTime creation;
+    private LocalDateTime modified;
     private String modifiedBy;
     private int docstatus;
     private int idx;
@@ -28,14 +30,14 @@ public class Company {
     private String defaultLetterHead;
     private String taxId;
     private String domain;
-    private Date dateOfEstablishment;
+    private LocalDate dateOfEstablishment;
     private String parentCompany;
     private String companyLogo;
-    private Date dateOfIncorporation;
+    private LocalDate dateOfIncorporation;
     private String phoneNo;
     private String email;
     private String companyDescription;
-    private Date dateOfCommencement;
+    private LocalDate dateOfCommencement;
     private String fax;
     private String website;
     private String registrationDetails;
@@ -67,7 +69,7 @@ public class Company {
     private String defaultDeferredRevenueAccount;
     private String defaultDeferredExpenseAccount;
     private int bookAdvancePaymentsInSeparatePartyAccount;
-    private int reconcileOnAdvancePaymentDate;
+    private int reconcileOnAdvancePaymentLocalDate;
     private String reconciliationTakesEffectOn;
     private String defaultAdvanceReceivedAccount;
     private String defaultAdvancePaidAccount;
