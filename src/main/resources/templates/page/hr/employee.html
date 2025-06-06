@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+<body class="vertical light">
+<div class="wrapper">
+
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <h2 class="mb-2 page-title">Employee</h2>
+                    <p class="card-text">
+                        List of employees with dynamic search filters.
+                    </p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="toolbar row mb-3">
+                                        <div class="col">
+                                            <form class="form-inline">
+                                                <div class="form-row">
+                                                    <div class="form-group col-auto">
+                                                        <h5 class="card-title">Liste des vols</h5>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col ml-auto">
+                                            <div class="dropdown float-right">
+                                                <button class="btn btn-secondary  float-right ml-3" type="button"  data-toggle="modal" data-target="#varyModal" data-whatever="@mdo"><span class="fe fe-24 fe-filter myIco mr-2"></span> Search Filters</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- table -->
+                                    <table class="table datatables" id="dataTable-1">
+                                        <thead>
+                                        <tr>
+                                            <th>Full name</th>
+                                            <th>Status</th>
+                                            <th>Designation</th>
+                                            <th>ID</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <th:block th:each="employee, iterStat : ${employeeList}">
+                                                <tr class="supplier-row" th:attr="data-employee=${employee.name}" style="cursor: pointer;">
+                                                    <td>
+                                                        <p class="mb-0 text-muted">
+                                                            <strong th:text="${
+                                                                ((employee.firstName!=null) ? employee.firstName:'')
+                                                              + ((employee.middleName!=null) ? ' '+employee.middleName:'')
+                                                              + ((employee.lastName!=null) ? ' '+employee.lastName:'') }"
+                                                            ></strong>
+                                                        </p>
+                                                    </td>
+                                                    <td th:text="${employee.status}"></td>
+                                                    <td th:text="${employee.designation}"></td>
+                                                    <td th:text="${employee.name}"></td>
+                                                </tr>
+                                            </th:block>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div> <!-- end section -->
+                </div> <!-- .col-12 -->
+            </div>
+        </div>
+    </main>
+
+
+
+
+    <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="varyModalLabel">Search Filters</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="searchForm" th:action="@{/employee}" method="get" th:object="${employeeSearch}">
+                        <div class="form-row">
+                            <!-- Col 1 -->
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="employee-name">Full Name</label>
+                                <input type="text" id="employee-name" class="form-control" th:field="*{employeeName}" placeholder="e.g., John Doe">
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="employee-id">Employee ID</label>
+                                <input type="text" id="employee-id" class="form-control" th:field="*{name}" placeholder="e.g., EMP-0001">
+                            </div>
+                            <!-- Col 2 -->
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="first-name">First Name</label>
+                                <input type="text" id="first-name" class="form-control" th:field="*{firstName}" placeholder="e.g., John">
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="last-name">Last Name</label>
+                                <input type="text" id="last-name" class="form-control" th:field="*{lastName}" placeholder="e.g., Doe">
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="middle-name">Middle Name</label>
+                                <input type="text" id="middle-name" class="form-control" th:field="*{middleName}" placeholder="e.g., Allan">
+                            </div>
+
+                            <!-- Col 3 -->
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="department">Department</label>
+                                <input type="text" id="department" class="form-control" th:field="*{department}" placeholder="e.g., HR">
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="designation">Designation</label>
+                                <input type="text" id="designation" class="form-control" th:field="*{designation}" placeholder="e.g., Manager">
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="form-control" th:field="*{gender}">
+                                    <option value="">All</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <label for="status">Status</label>
+                                <select id="status" class="form-control" th:field="*{status}">
+                                    <option value="">All</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Suspended">Suspended</option>
+                                    <option value="Left">Left</option>
+                                </select>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="col-lg-6 col-md-6 mb-3">
+                                <label>Birthday between</label>
+                                <div class="d-flex gap-2">
+                                    <input type="date" class="form-control" th:field="*{dateOfBirthMin}">
+                                    <span class="mx-2 align-self-center">and</span>
+                                    <input type="date" class="form-control" th:field="*{dateOfBirthMax}">
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 mb-3">
+                                <label>Date of Joining between</label>
+                                <div class="d-flex gap-2">
+                                    <input type="date" class="form-control" th:field="*{dateOfJoiningMin}">
+                                    <span class="mx-2 align-self-center">and</span>
+                                    <input type="date" class="form-control" th:field="*{dateOfJoiningMax}">
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="searchForm" class="btn mb-2 btn-dark">Apply Filters</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+<script th:src="@{js/jquery.dataTables.min.js}"></script>
+<script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script>
+    $('#dataTable-1').DataTable(
+        {
+            autoWidth: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
+</script>
+
+
+</body>
+
+</html>
