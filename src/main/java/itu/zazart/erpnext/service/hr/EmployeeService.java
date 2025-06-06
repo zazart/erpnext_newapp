@@ -1,7 +1,9 @@
 package itu.zazart.erpnext.service.hr;
 
+import itu.zazart.erpnext.dto.EmployeeSearch;
 import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.service.Utils;
+import jakarta.servlet.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,8 +52,12 @@ public class EmployeeService {
     }
 
     public List<Employee> getAllEmployee(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Employee?fields=[\"*\"]";
+        return getEmployees(sid,null);
+    }
 
+    public List<Employee> getEmployees(String sid, EmployeeSearch employeeSearch) {
+        String filters = buildFilters(employeeSearch);
+        String url = erpnextApiUrl + "/api/resource/Employee?filters=["+filters+"]&fields=[\"*\"]";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -107,4 +113,55 @@ public class EmployeeService {
             throw new RuntimeException("Error creating new Employee", e);
         }
     }
+
+
+    public String buildFilters(EmployeeSearch search) {
+        List<String> filters = new ArrayList<>();
+
+        if (search.getEmployeeName() != null && !search.getEmployeeName().isBlank()) {
+            filters.add("[\"employee_name\", \"like\", \"%" + search.getEmployeeName() + "%\"]");
+        }
+        if (search.getName() != null && !search.getName().isBlank()) {
+            filters.add("[\"name\", \"like\", \"%" + search.getName() + "%\"]");
+        }
+        if (search.getFirstName() != null && !search.getFirstName().isBlank()) {
+            filters.add("[\"first_name\", \"like\", \"%" + search.getFirstName() + "%\"]");
+        }
+        if (search.getLastName() != null && !search.getLastName().isBlank()) {
+            filters.add("[\"last_name\", \"like\", \"%" + search.getLastName() + "%\"]");
+        }
+        if (search.getMiddleName() != null && !search.getMiddleName().isBlank()) {
+            filters.add("[\"middle_name\", \"like\", \"%" + search.getMiddleName() + "%\"]");
+        }
+        if (search.getDepartment() != null && !search.getDepartment().isBlank()) {
+            filters.add("[\"department\", \"=\", \"" + search.getDepartment() + "\"]");
+        }
+        if (search.getDesignation() != null && !search.getDesignation().isBlank()) {
+            filters.add("[\"designation\", \"=\", \"" + search.getDesignation() + "\"]");
+        }
+        if (search.getGender() != null && !search.getGender().isBlank()) {
+            filters.add("[\"gender\", \"=\", \"" + search.getGender() + "\"]");
+        }
+        if (search.getStatus() != null && !search.getStatus().isBlank()) {
+            filters.add("[\"status\", \"=\", \"" + search.getStatus() + "\"]");
+        }
+        if (search.getDateOfBirthMin() != null) {
+            filters.add("[\"date_of_birth\", \">=\", \"" + search.getDateOfBirthMin() + "\"]");
+        }
+        if (search.getDateOfBirthMax() != null) {
+            filters.add("[\"date_of_birth\", \"<=\", \"" + search.getDateOfBirthMax() + "\"]");
+        }
+        if (search.getDateOfJoiningMin() != null) {
+            filters.add("[\"date_of_joining\", \">=\", \"" + search.getDateOfJoiningMin() + "\"]");
+        }
+        if (search.getDateOfJoiningMax() != null) {
+            filters.add("[\"date_of_joining\", \"<=\", \"" + search.getDateOfJoiningMax() + "\"]");
+        }
+
+        return String.join(",", filters);
+    }
+
+
+
 }
+

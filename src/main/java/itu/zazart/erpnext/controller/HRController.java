@@ -1,6 +1,7 @@
 package itu.zazart.erpnext.controller;
 
 import itu.zazart.erpnext.dto.DataImport;
+import itu.zazart.erpnext.dto.EmployeeSearch;
 import itu.zazart.erpnext.dto.ImportError;
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.model.hr.*;
@@ -22,10 +23,12 @@ public class HRController {
     private final SessionService sessionService;
     private final ImportService importService;
     private static final Logger logger = LoggerFactory.getLogger(HRController.class);
+    private final EmployeeService employeeService;
 
-    public HRController(SessionService sessionService, ImportService importService) {
+    public HRController(SessionService sessionService, ImportService importService, EmployeeService employeeService) {
         this.sessionService = sessionService;
         this.importService = importService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/import")
@@ -39,10 +42,6 @@ public class HRController {
         model.addAttribute("dataImport", new DataImport());
         return "page/hr/import";
     }
-
-
-
-
 
     @PostMapping("/import")
     public String handleFileUpload(@ModelAttribute("dataImport") DataImport dataImport, Model model) {
@@ -64,5 +63,20 @@ public class HRController {
 
         model.addAttribute("successMessage", "Import réussi !");
         return "page/hr/import";
+    }
+
+    @GetMapping("/employee")
+    public String employee(@ModelAttribute("employeeSearch") EmployeeSearch employeeSearch, Model model){
+        if (!sessionService.isLoggedIn()) {
+            return "redirect:/";
+        }
+        User user = sessionService.getErpUser();
+        model.addAttribute("user", user);
+
+        String sid = sessionService.getErpSid();
+        List<Employee> employeeList = employeeService.getEmployees(sid,employeeSearch);
+        model.addAttribute("employeeList", employeeList);
+
+        return "page/hr/employee";
     }
 }

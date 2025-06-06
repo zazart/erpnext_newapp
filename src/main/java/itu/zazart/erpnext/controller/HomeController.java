@@ -52,7 +52,7 @@ public class HomeController {
         sessionService.setUserSession(user);
 
         if (loginOk) {
-            return "redirect:/supplier";
+            return "redirect:/employee";
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid Login. Try again.");
             return "redirect:/";
