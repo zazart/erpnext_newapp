@@ -1,4 +1,4 @@
-package itu.zazart.erpnext.controller;
+package itu.zazart.erpnext.controller.buying;
 
 import itu.zazart.erpnext.dto.ItemUpdateRequest;
 import itu.zazart.erpnext.model.buying.PurchaseOrder;

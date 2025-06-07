@@ -117,10 +117,10 @@
 }
 
 
-.supplier-row {
+.doctype-row {
     transition: background-color 0.2s ease-in-out;
 }
-.supplier-row:hover {
+.doctype-row:hover {
     background-color: #f0f8ff;
 }
 
@@ -224,4 +224,18 @@
         max-width: 870px;
         margin: 1.75rem auto;
     }
+}
+
+
+.Active-color {
+    background-color: #28A745;
+}
+.Inactive-color {
+    background-color: #FFC107;
+}
+.Suspended-color {
+    background-color: #FD7E14;
+}
+.Left-color {
+    background-color: #DC3545;
 }

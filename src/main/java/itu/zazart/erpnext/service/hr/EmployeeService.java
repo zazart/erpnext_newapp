@@ -55,6 +55,17 @@ public class EmployeeService {
         return getEmployees(sid,null);
     }
 
+    public Employee getEmployeeByName(String sid,String employeeName) {
+        EmployeeSearch employeeSearch = new EmployeeSearch();
+        employeeSearch.setName(employeeName);
+        List<Employee> employeeList = getEmployees(sid, employeeSearch);
+
+        if (employeeList.isEmpty()) {
+            return null;
+        }
+        return employeeList.get(0);
+    }
+
     public List<Employee> getEmployees(String sid, EmployeeSearch employeeSearch) {
         String filters = buildFilters(employeeSearch);
         String url = erpnextApiUrl + "/api/resource/Employee?filters=["+filters+"]&fields=[\"*\"]";
