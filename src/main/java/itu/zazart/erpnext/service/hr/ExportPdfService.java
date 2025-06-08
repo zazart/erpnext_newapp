@@ -18,8 +18,11 @@ import java.io.IOException;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
+import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ExportPdfService {
@@ -61,22 +64,6 @@ public class ExportPdfService {
     private Paragraph getParaField(String text) throws IOException {
         return getParagraph(text,10,"#746f6f");
     }
-
-    private Cell getLabelCell(String text,Paragraph paragraph) throws IOException {
-        return new Cell()
-                .add(paragraph)
-                .setBorder(Border.NO_BORDER)
-                .setPadding(2);
-    }
-
-    private Cell getValueCell(String text, Paragraph paragraph) throws IOException {
-        return new Cell()
-                .add(paragraph)
-                .setBorder(Border.NO_BORDER)
-                .setPadding(2);
-    }
-
-
 
     private Cell getLabelCell(String text) throws IOException {
         return new Cell()
@@ -120,6 +107,13 @@ public class ExportPdfService {
         document.add(ls);
     }
 
+    private void generateTableCell(String[] fields,String[] values,Table table) throws IOException {
+        for (int i = 0; i < fields.length; i++) {
+            table.addCell(getLabelCell(fields[i]));
+            table.addCell(getLabelCell(":"));
+            table.addCell(getValueCell(values[i]));
+        }
+    }
 
     private void addEmployeeSummary(Document document,SalarySlip salarySlip) throws IOException {
         Table mainTable = new Table(UnitValue.createPercentArray(new float[]{3, 2}))
@@ -133,33 +127,21 @@ public class ExportPdfService {
                 .setPaddingBottom(5);
         leftInnerTable.addHeaderCell(employeeSummaryCell);
 
-        leftInnerTable.addCell(getLabelCell("Employee Name"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getEmployee_name()));
-
-        leftInnerTable.addCell(getLabelCell("Employee ID"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getEmployee()));
-
-        leftInnerTable.addCell(getLabelCell("Department"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(""));
-
-        leftInnerTable.addCell(getLabelCell("Designation"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(""));
+        String[] leftFields = {"Employee Name", "Employee ID", "Department", "Designation"};
+        String[] leftValues = {salarySlip.getEmployee_name(),salarySlip.getEmployee(),"",""};
+        generateTableCell(leftFields,leftValues,leftInnerTable);
 
         Cell leftCell = new Cell().add(leftInnerTable)
                 .setPadding(0)
                 .setBorder(Border.NO_BORDER);
 
-        // ---------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------------------
         Cell rightCell = new Cell();
         Table rightInnerTable = new Table(1)
                 .useAllAvailableWidth();
 
         Cell netPayCell = new Cell()
-                .add(getParagraph(salarySlip.getNet_pay().toString(),18,"#000000"))
+                .add(getParagraph( salarySlip.getCurrency()+" "+salarySlip.getNet_pay().toString(),18,"#000000"))
                 .add(getParagraph("Employee Net Pay",10,"#69886f"))
                 .setBackgroundColor(getColor("#edfcf1"))
                 .setBorder(Border.NO_BORDER)
@@ -169,13 +151,10 @@ public class ExportPdfService {
         Table payDetailsTable = new Table(UnitValue.createPercentArray(new float[]{4f, 0.5f, 2.5f}))
                 .useAllAvailableWidth()
                 .setMargins(10, 10, 10, 10);
-        payDetailsTable.addCell(getLabelCell("Payment Days").setBorder(Border.NO_BORDER));
-        payDetailsTable.addCell(getLabelCell(":").setBorder(Border.NO_BORDER));
-        payDetailsTable.addCell(getValueCell(salarySlip.getPayment_days().toString()).setBorder(Border.NO_BORDER));
 
-        payDetailsTable.addCell(getLabelCell("Total Working Days").setBorder(Border.NO_BORDER));
-        payDetailsTable.addCell(getLabelCell(":").setBorder(Border.NO_BORDER));
-        payDetailsTable.addCell(getValueCell(salarySlip.getTotal_working_days().toString()).setBorder(Border.NO_BORDER));
+        String[] payDetailsFields = {"Payment Days","Total Working Days"};
+        String[] payDetailsValues = {salarySlip.getPayment_days().toString(),salarySlip.getTotal_working_days().toString()};
+        generateTableCell(payDetailsFields,payDetailsValues,payDetailsTable);
 
         Cell detailsCell = new Cell()
                 .add(payDetailsTable)
@@ -197,8 +176,6 @@ public class ExportPdfService {
         document.add(ls);
     }
 
-
-
     private void addSalarySlipInformation(Document document,SalarySlip salarySlip) throws IOException {
         Table mainTable = new Table(UnitValue.createPercentArray(new float[]{4, 3}))
                 .useAllAvailableWidth()
@@ -206,25 +183,15 @@ public class ExportPdfService {
         Table leftInnerTable = new Table(UnitValue.createPercentArray(new float[]{4.3f, 0.6f, 5}))
                 .useAllAvailableWidth();
 
-        leftInnerTable.addCell(getLabelCell("Posting Date"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getPosting_date().toString()));
-
-        leftInnerTable.addCell(getLabelCell("Status"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getStatus()));
-
-        leftInnerTable.addCell(getLabelCell("Salary Structure"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getSalary_structure()));
-
-        leftInnerTable.addCell(getLabelCell("Start Date"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getStart_date().toString()));
-
-        leftInnerTable.addCell(getLabelCell("End Date"));
-        leftInnerTable.addCell(getLabelCell(":"));
-        leftInnerTable.addCell(getValueCell(salarySlip.getEnd_date().toString()));
+        String[] leftFields = {"Posting Date", "Status", "Salary Structure", "Start Date","End Date"};
+        String[] leftValues = {
+                salarySlip.getPosting_date().toString(),
+                salarySlip.getStatus(),
+                salarySlip.getSalary_structure(),
+                salarySlip.getStart_date().toString(),
+                salarySlip.getEnd_date().toString()
+        };
+        generateTableCell(leftFields,leftValues,leftInnerTable);
 
         Cell leftCell = new Cell().add(leftInnerTable)
                 .setPadding(0)
@@ -234,22 +201,14 @@ public class ExportPdfService {
 
         Table rightInnerTable = new Table(UnitValue.createPercentArray(new float[]{5, 0.7f, 5}))
                 .useAllAvailableWidth();
-
-        rightInnerTable.addCell(getLabelCell("Payroll Frenquency"));
-        rightInnerTable.addCell(getLabelCell(":"));
-        rightInnerTable.addCell(getValueCell(salarySlip.getPayroll_frequency()));
-
-        rightInnerTable.addCell(getLabelCell("Unmarked Days"));
-        rightInnerTable.addCell(getLabelCell(":"));
-        rightInnerTable.addCell(getValueCell(salarySlip.getUnmarked_days().toString()));
-
-        rightInnerTable.addCell(getLabelCell("Leave withoud Day"));
-        rightInnerTable.addCell(getLabelCell(":"));
-        rightInnerTable.addCell(getValueCell(salarySlip.getLeave_without_pay().toString()));
-
-        rightInnerTable.addCell(getLabelCell("Absent Days"));
-        rightInnerTable.addCell(getLabelCell(":"));
-        rightInnerTable.addCell(getValueCell(salarySlip.getAbsent_days().toString()));
+        String[] rightFields = {"Payroll Frenquency","Unmarked Days","Leave withoud Day","Absent Days"};
+        String[] rightValues = {
+                salarySlip.getPayroll_frequency(),
+                salarySlip.getUnmarked_days().toString(),
+                salarySlip.getLeave_without_pay().toString(),
+                salarySlip.getAbsent_days().toString()
+        };
+        generateTableCell(rightFields,rightValues,rightInnerTable);
 
         rightCell.add(rightInnerTable)
                 .setBorder(new SolidBorder(getColor("#c1c7cc"), 0.5f))
@@ -262,72 +221,49 @@ public class ExportPdfService {
         document.add(mainTable);
     }
 
+    private Cell getCellHeaderComponent(String title) throws IOException {
+        return new Cell()
+                .add(getParagraph(title, 10, "#333333").setBold().setMarginBottom(5))
+                .setBorder(Border.NO_BORDER)
+                .setBorderBottom(new SolidBorder(getColor("#c1c7cc"), 0.5f))
+                .setTextAlignment((title.equals("AMOUNT")) ? TextAlignment.RIGHT : TextAlignment.LEFT);
+    }
+
+    private Table createComponentTable(int marginRight, int marginLeft, String componentType) throws IOException {
+        return new Table(UnitValue.createPercentArray(new float[]{3, 1}))
+                .setMargins(5,marginRight, 5,marginLeft)
+                .useAllAvailableWidth()
+                .addHeaderCell(getCellHeaderComponent(componentType)) // EARNINGS OR DEDUCTIONS
+                .addHeaderCell(getCellHeaderComponent("AMOUNT"));
+    }
+
+    private void showSalaryComponent(List<SalaryComponent> salaryComponents,Table table) throws IOException {
+        for (int i = 0; i < salaryComponents.size(); i++) {
+            Paragraph compName = getComponentPargraph(salaryComponents.get(i).getSalaryComponent());
+            Paragraph componentValue = getParagraph(salaryComponents.get(i).getAmount().toString(), 9, "#333333");
+            Cell componentNameCell = new Cell().add(compName.setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0);
+            Cell componentValueCell = new Cell().add(componentValue).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0);
+            if(i==0){
+                compName.setMarginTop(10);
+                componentValue.setMarginTop(10);
+            }
+            table.addCell(componentNameCell);
+            table.addCell(componentValueCell);
+        }
+    }
+
     private void addSalaryComponents(Document document,SalarySlip salarySlip) throws IOException {
         Table container = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
                 .useAllAvailableWidth()
                 .setMarginBottom(5);
 
-        Table earningsTable = new Table(UnitValue.createPercentArray(new float[]{3, 1}))
-                .setMargins(5,10,5,5)
-                .useAllAvailableWidth();
-        earningsTable.addHeaderCell(
-                new Cell()
-                        .add(getParagraph("EARNINGS", 10, "#333333").setBold().setMarginBottom(5))
-                        .setBorder(Border.NO_BORDER)
-                        .setBorderBottom(new SolidBorder(getColor("#c1c7cc"), 0.5f))
-        );
-
-        earningsTable.addHeaderCell(
-                new Cell()
-                        .add(getParagraph("AMOUNT", 10, "#333333").setBold().setMarginBottom(5))
-                        .setTextAlignment(TextAlignment.RIGHT)
-                        .setBorder(Border.NO_BORDER)
-                        .setBorderBottom(new SolidBorder(getColor("#c1c7cc"), 0.5f))
-
-        );
-
-//        for (int i = 0; i < salarySlip.getEarnings().size(); i++) {
-//            Cell componentNameCell = new Cell();
-//            Cell componentValueCell = new Cell();
-//            earningsTable.addCell(new Cell().add(getComponentPargraph("Allowance").setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0));
-//            earningsTable.addCell(new Cell().add(getParagraph("3,000.00",9,"#333333")).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
-//        }
-//
-        earningsTable.addCell(new Cell().add(getComponentPargraph("Basic Salary").setMarginBottom(10).setMarginTop(10)).setBorder(Border.NO_BORDER).setPadding(0));
-        earningsTable.addCell(new Cell().add(getParagraph("20,000.00",9,"#333333").setMarginTop(10)).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
-        earningsTable.addCell(new Cell().add(getComponentPargraph("Bonus").setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0));
-        earningsTable.addCell(new Cell().add(getParagraph("5,000.00",9,"#333333")).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
-        earningsTable.addCell(new Cell().add(getComponentPargraph("Allowance").setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0));
-        earningsTable.addCell(new Cell().add(getParagraph("3,000.00",9,"#333333")).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
-
-        // Deductions Table
-        Table deductionsTable = new Table(UnitValue.createPercentArray(new float[]{3, 1}))
-                .setMargins(5,5,5,10)
-                .useAllAvailableWidth();
-
-        deductionsTable.addHeaderCell(
-                new Cell()
-                        .add(getParagraph("DEDUCTIONS", 10, "#333333").setBold().setMarginBottom(5))
-                        .setBorder(Border.NO_BORDER)
-                        .setBorderBottom(new SolidBorder(getColor("#c1c7cc"), 0.5f))
-        );
-
-        deductionsTable.addHeaderCell(
-                new Cell()
-                        .add(getParagraph("AMOUNT", 10, "#333333").setBold().setMarginBottom(5))
-                        .setTextAlignment(TextAlignment.RIGHT)
-                        .setBorder(Border.NO_BORDER)
-                        .setBorderBottom(new SolidBorder(getColor("#c1c7cc"), 0.5f))
-
-        );
-        deductionsTable.addCell(new Cell().add(getComponentPargraph("Tax").setMarginTop(10).setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0));
-        deductionsTable.addCell(new Cell().add(getParagraph("2,000.00",9,"#333333").setMarginTop(10)).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
-        deductionsTable.addCell(new Cell().add(getComponentPargraph("Insurance").setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0));
-        deductionsTable.addCell(new Cell().add(getParagraph("1,000.00",9,"#333333")).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0));
+        Table earningsTable = createComponentTable(10, 5,"EARNINGS");
+        showSalaryComponent(salarySlip.getEarnings(),earningsTable);
+        Table deductionsTable = createComponentTable(5, 10,"DEDUCTIONS");
+        showSalaryComponent(salarySlip.getDeductions(),deductionsTable);
 
         container.addCell(new Cell().add(earningsTable).setBorder(Border.NO_BORDER).setPadding(0));
         container.addCell(new Cell().add(deductionsTable).setBorder(Border.NO_BORDER).setPadding(0));
-
 
         Table totalsTable = new Table(UnitValue.createPercentArray(new float[]{3, 1, 3, 1}))
                 .setMargin(-10)
@@ -352,8 +288,6 @@ public class ExportPdfService {
         document.add(wrapper);
     }
 
-
-
     private void addNetPay(Document document,SalarySlip salarySlip) throws IOException {
         Table mainTable = new Table(1)
                 .useAllAvailableWidth()
@@ -372,7 +306,7 @@ public class ExportPdfService {
 
 
         Cell detailsCell = new Cell()
-                .add(getParagraph("USD 30 000.00", 10, "#333333").setBold())
+                .add(getParagraph( salarySlip.getCurrency()+" "+salarySlip.getNet_pay().toString(), 10, "#333333").setBold())
                 .setBackgroundColor(getColor("#edfcf1"))
                 .setTextAlignment(TextAlignment.CENTER)
                 .setVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -395,12 +329,7 @@ public class ExportPdfService {
                 .setMarginBottom(20);
 
         document.add(line);
-
-
     }
-
-
-
 
     public byte[] generateSalarySlipPdf(SalarySlip salarySlip) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -415,7 +344,6 @@ public class ExportPdfService {
         addSalarySlipInformation(document,salarySlip);
         addSalaryComponents(document,salarySlip);
         addNetPay(document,salarySlip);
-
 
         document.close();
         return baos.toByteArray();
