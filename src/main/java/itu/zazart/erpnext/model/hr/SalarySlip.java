@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -87,4 +88,7 @@ public class SalarySlip {
     private String amended_from;
     private String bank_name;
     private String bank_account_no;
+    private List<SalaryComponent> earnings;
+    private List<SalaryComponent> deductions;
+    private Employee employeeObject;
 }

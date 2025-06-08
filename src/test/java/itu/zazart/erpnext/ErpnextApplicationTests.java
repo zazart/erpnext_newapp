@@ -4,6 +4,7 @@ import itu.zazart.erpnext.model.hr.Company;
 import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.service.hr.CompanyService;
 import itu.zazart.erpnext.service.hr.EmployeeService;
+import itu.zazart.erpnext.service.hr.SalarySlipService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,12 +20,14 @@ import java.util.List;
 class ErpnextApplicationTests {
 	private final CompanyService companyService;
 	private final EmployeeService employeeService;
+	private final SalarySlipService salarySlipService;
 	private final String testSid = "2aa682df2dec52345a6e3f1cd651b7f5738ed7b4c813d0d26279b458";
 
 	@Autowired
-    ErpnextApplicationTests(CompanyService companyService, EmployeeService employeeService) {
+    ErpnextApplicationTests(CompanyService companyService, EmployeeService employeeService, SalarySlipService salarySlipService) {
         this.companyService = companyService;
         this.employeeService = employeeService;
+        this.salarySlipService = salarySlipService;
     }
 
     @Test
@@ -90,5 +93,10 @@ class ErpnextApplicationTests {
 		System.out.println(abbreviation);
 	}
 
+	@Test
+	void getSalarySlipByName(){
+		String name = "Sal Slip/HR-EMP-00014/00001";
+		salarySlipService.getSalarySlipByName(testSid, name);
+	}
 
 }

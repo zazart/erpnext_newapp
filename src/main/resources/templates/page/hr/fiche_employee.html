@@ -121,7 +121,7 @@
 
                                         <tbody>
                                         <th:block th:each="salarySlip, iterStat : ${salarySlipList}">
-                                            <tr class="doctype-row">
+                                            <tr class="doctype-row" th:attr="data-salary=${salarySlip.name}" style="cursor: pointer;">
                                                 <td>
                                                     <p class="mb-0 text-muted">
                                                         <strong th:text="${salarySlip.name}"
@@ -131,7 +131,7 @@
                                                 <td th:text="${'Apr 2025'}"></td>
                                                 <td th:text="${salarySlip.gross_pay}"></td>
                                                 <td th:text="${salarySlip.net_pay}"></td>
-                                                <td> <img th:src="@{'/assets/images/pdf.png'}" alt="Default Avatar"
+                                                <td> <img class="pdf-row" th:src="@{'/assets/images/pdf.png'}" alt="Default Avatar"
                                                           style="width: 30px; height: 30px; cursor:pointer"></td>
                                             </tr>
                                         </th:block>
@@ -160,6 +160,16 @@
                 [20, 100, 500, "All"]
             ]
         });
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".doctype-row").forEach(function(row) {
+            row.addEventListener("click", function() {
+                const salarySlipName = this.dataset.salary;
+                console.log(salarySlipName);
+                window.location.href = `/print_salary_slip?salarySlipName=${salarySlipName}`;
+            })
+        })
     });
 </script>
 
