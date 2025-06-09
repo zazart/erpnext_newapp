@@ -239,3 +239,7 @@
 .Left-color {
     background-color: #DC3545;
 }
+
+#register{
+    min-width: 2000px;
+}

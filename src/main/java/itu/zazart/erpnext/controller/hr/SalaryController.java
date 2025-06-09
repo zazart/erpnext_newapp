@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class SalaryController {
     private final SessionService sessionService;
@@ -40,10 +42,11 @@ public class SalaryController {
         byte[] pdfBytes = exportPdfService.generateSalarySlipPdf(salarySlip);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=test-ui.pdf"); // syntaxe complète ici
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=test-ui.pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
     }
+
 }
