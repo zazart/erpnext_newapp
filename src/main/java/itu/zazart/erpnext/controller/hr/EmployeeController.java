@@ -1,4 +1,4 @@
-package itu.zazart.erpnext.controller;
+package itu.zazart.erpnext.controller.hr;
 
 import itu.zazart.erpnext.dto.DataImport;
 import itu.zazart.erpnext.dto.EmployeeSearch;
@@ -14,21 +14,24 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-public class HRController {
+public class EmployeeController {
     private final SessionService sessionService;
     private final ImportService importService;
-    private static final Logger logger = LoggerFactory.getLogger(HRController.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
     private final EmployeeService employeeService;
+    private final SalarySlipService salarySlipService;
 
-    public HRController(SessionService sessionService, ImportService importService, EmployeeService employeeService) {
+    public EmployeeController(SessionService sessionService, ImportService importService, EmployeeService employeeService, SalarySlipService salarySlipService) {
         this.sessionService = sessionService;
         this.importService = importService;
         this.employeeService = employeeService;
+        this.salarySlipService = salarySlipService;
     }
 
     @GetMapping("/import")
@@ -78,5 +81,21 @@ public class HRController {
         model.addAttribute("employeeList", employeeList);
 
         return "page/hr/employee";
+    }
+
+    @GetMapping("fiche_employee")
+    public String getFicheEmployee(Model model, @RequestParam String employeeName){
+        if (!sessionService.isLoggedIn()) {
+            return "redirect:/";
+        }
+        User user = sessionService.getErpUser();
+        model.addAttribute("user", user);
+        String sid = sessionService.getErpSid();
+        Employee employee = employeeService.getEmployeeByName(sid,employeeName);
+        List<SalarySlip> salarySlipList = salarySlipService.getSalarySlipsByEmployee(sid,employeeName);
+
+        model.addAttribute("employee",employee);
+        model.addAttribute("salarySlipList", salarySlipList);
+        return "page/hr/fiche_employee";
     }
 }

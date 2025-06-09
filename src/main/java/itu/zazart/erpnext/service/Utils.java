@@ -108,4 +108,21 @@ public class Utils {
     }
 
 
+    public static String snakeCaseToWords(String snakeCase) {
+        if (snakeCase == null || snakeCase.isEmpty()) {
+            return snakeCase;
+        }
+        String[] parts = snakeCase.split("_");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) continue;
+            result.append(part.substring(0, 1).toUpperCase());
+            if (part.length() > 1) {
+                result.append(part.substring(1).toLowerCase());
+            }
+            result.append(" ");
+        }
+
+        return result.toString().trim();
+    }
 }

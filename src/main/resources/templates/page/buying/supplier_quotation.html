@@ -4,289 +4,302 @@
 <body class="vertical light">
 <div class="wrapper">
 
-  <th:block th:replace="~{fragments/header.html}"></th:block>
-  <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
 
-  <main role="main" class="main-content">
-    <div class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-12">
-          <div class="row mt-3 align-items-center">
-            <div class="col-md-3 text-center mb-5">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="row mt-3 align-items-center">
+                        <div class="col-md-3 text-center mb-5">
 
-              <div th:if="${supplier != null and supplier.Image != null and supplier.Image != ''}" class="avatar avatar-xl">
-                <img th:src="@{${supplier.Image}}"
-                     class="avatar-img rounded-circle"
-                     style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%;">
-              </div>
-
-              <div th:if="${supplier != null and (supplier.Image == null or supplier.Image == '')}" class="avatar-img" style="position: relative;">
-                <span class="avatar_perso_xl" th:text="${supplier.initial}"></span>
-                <img th:src="@{'/assets/avatars/face-1.jpg'}" alt="Default Avatar" class="rounded-circle border border-light shadow-sm" style="width: 130px; height: 130px;">
-              </div>
-
-            </div>
-            <div class="col">
-              <div class="row align-items-center">
-                <div class="col-md-7">
-                  <h4 class="mb-1" th:text="${supplier.supplierName}"></h4>
-                  <p class="small mb-3"><span class="badge badge-dark" th:text="${supplier.country}"></span></p>
-                </div>
-              </div>
-              <div class="row mb-4">
-                <div class="col">
-                  <p class="small mb-0 text-muted" th:text="${'Group : '+ supplier.supplierGroup}">Group: -</p>
-                  <p class="small mb-0 text-muted" th:text="${'Type : '+ supplier.supplierType}">Type: -</p>
-                  <p class="small mb-0 text-muted" th:text="${'Modified : '+ supplier.modified}">Modified: -</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <h3>Supplier Quotation</h3>
-          <p class="text-muted">This section shows the list of quotations received from the supplier, including details like their status, validity, and total amount.</p>
-          <div class="row my-4">
-            <!-- Small table -->
-            <div class="col-md-12">
-              <div class="card shadow">
-                <div class="card-body">
-                  <!-- table -->
-                  <table class="table datatables" id="dataTable-1">
-                    <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Valid Till</th>
-                      <th>Grand Total</th>
-                      <th>ID</th>
-                      <th>Action</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <th:block th:each="supplierQuotation, iterStat : ${supplierQuotations}">
-                      <tr>
-                        <td>
-                          <p class="mb-0 text-muted">
-                            <strong th:text="${supplierQuotation.title}">-</strong>
-                          </p>
-                        </td>
-                        <td>
-                        <span th:text="${supplierQuotation.status}"
-                              th:classappend="|${supplierQuotation.status == 'Draft' ? 'badge draft-color' : ''}
-                                              ${supplierQuotation.status == 'Submitted' ? 'badge submitted-color' : ''}
-                                              ${supplierQuotation.status == 'Ordered' ? 'badge ordered-color' : ''}
-                                              ${supplierQuotation.status == 'Cancelled' ? 'badge cancelled-color' : ''}|">
-                            -
-                        </span>
-                        </td>
-                        <td th:text="${supplierQuotation.transactionDate}">-</td>
-                        <td th:text="${supplierQuotation.validTill}">-</td>
-                        <td th:text="${supplierQuotation.grandTotal}">-</td>
-                        <td>
-                          <p class="mb-0 text-muted">
-                            <strong th:text="${supplierQuotation.name}">-</strong>
-                          </p>
-                        </td>
-
-                        <td>
-                          <a th:if="${supplierQuotation.status == 'Draft'}"
-                             data-toggle="modal"
-                             data-target="#updatePricesModal"
-                             th:attr="data-supplier-name=${supplierQuotation.name}"
-                             href="#"
-                             style="text-decoration: none; color: inherit;">
-                            <i class="fe fe-edit fe-16"></i>
-                          </a>
-                          <i th:if="${supplierQuotation.status != 'Draft'}" class="fe fe-lock fe-16" style="color: gray;"></i>
-                        </td>
-
-                      </tr>
-                    </th:block>
-                    </tbody>
-                  </table>
-
-                </div>
-              </div>
-            </div> <!-- simple table -->
-          </div>
-
-          <div class="modal fade" id="updatePricesModal" tabindex="-1" aria-labelledby="updatePricesModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="updatePricesModalLabel">Update Item Prices</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form id="updatePricesForm">
-                    <table class="table table-sm table-bordered">
-                      <thead>
-                      <tr>
-                        <th style="width: 25%;">Item</th>
-                        <th style="width: 15%;">Current Rate</th>
-                        <th style="width: 10%;">Qty</th>
-                        <th style="width: 20%;">New Rate</th>
-                        <th style="width: 15%;">Subtotal</th>
-                      </tr>
-                      </thead>
-                      <tbody id="itemsTableBody">
-                      </tbody>
-                      <tfoot>
-                      <tr>
-                        <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
-                        <td id="totalAmount">0</td>
-                      </tr>
-                      </tfoot>
-                    </table>
-
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-dark" id="saveAndSubmitBtn">Save & Submit</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <h3>Purchase Order</h3>
-          <p class="text-muted">This section displays the purchase orders made to the supplier, including order status and delivery dates.</p>
-          <div class="row my-4">
-            <!-- Small table -->
-            <div class="col-md-12">
-              <div class="card shadow">
-                <div class="card-body">
-                  <!-- table -->
-                  <table class="table datatables" id="dataTable-2">
-                    <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Grand Total</th>
-                      <th>% Billed</th>
-                      <th>% Received</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                      <th:block th:each="purchaseOrder, iterStat : ${purchaseOrders}">
-                        <tr>
-                          <td>
-                            <p class="mb-0 text-muted">
-                              <strong th:text="${purchaseOrder.name}">-</strong>
-                            </p>
-                          </td>
-                          <td>
-                            <span th:text="${purchaseOrder.status}"
-                                  th:classappend="|${purchaseOrder.status == 'Draft' ? 'badge draft-color' : ''}
-                                                  ${purchaseOrder.status == 'To Receive and Bill' ? 'badge to-receive-and-bill-color' : ''}
-                                                  ${purchaseOrder.status == 'To Receive' ? 'badge to-receive-color' : ''}
-                                                  ${purchaseOrder.status == 'To Bill' ? 'badge to-bill-color' : ''}
-                                                  ${purchaseOrder.status == 'Completed' ? 'badge completed-color' : ''}
-                                                  ${purchaseOrder.status == 'Cancelled' ? 'badge cancelled-color' : ''}
-                                                  ${purchaseOrder.status == 'Closed' ? 'badge closed-color' : ''}
-                                                  ${purchaseOrder.status == 'On Hold' ? 'badge on-hold-color' : ''}|">-
-                            </span>
-                          </td>
-                          <td th:text="${purchaseOrder.modified}">-</td>
-                          <td th:text="${purchaseOrder.total}">-</td>
-                          <td style="width: 120px;">
-                            <div class="progress progress-sm" style="height:3px;">
-                              <div class="progress-bar"
-                                   role="progressbar"
-                                   th:classappend="
-                                    ${purchaseOrder.perBilled >= 100} ? 'bg-success' :
-                                    (${purchaseOrder.perBilled >= 50} ? 'bg-info' :
-                                    (${purchaseOrder.perBilled >= 25} ? 'bg-warning' : 'bg-danger'))"
-                                   th:style="'width: ' + ${purchaseOrder.perBilled} + '%'"
-                                   th:attr="aria-valuenow=${purchaseOrder.perBilled}"
-                                   aria-valuemin="0" aria-valuemax="100">
-                              </div>
+                            <div th:if="${supplier != null and supplier.Image != null and supplier.Image != ''}"
+                                 class="avatar avatar-xl">
+                                <img th:src="@{${supplier.Image}}"
+                                     class="avatar-img rounded-circle"
+                                     style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%;">
                             </div>
-                          </td>
 
-                          <td style="width: 120px;">
-                            <div class="progress progress-sm" style="height:3px;">
-                              <div class="progress-bar"
-                                   role="progressbar"
-                                   th:classappend="
-                                    ${purchaseOrder.perReceived >= 100} ? 'bg-success' :
-                                    (${purchaseOrder.perReceived >= 50} ? 'bg-info' :
-                                    (${purchaseOrder.perReceived >= 25} ? 'bg-warning' : 'bg-danger'))"
-                                   th:style="'width: ' + ${purchaseOrder.perReceived} + '%'"
-                                   th:attr="aria-valuenow=${purchaseOrder.perReceived}"
-                                   aria-valuemin="0" aria-valuemax="100">
-                              </div>
+                            <div th:if="${supplier != null and (supplier.Image == null or supplier.Image == '')}"
+                                 class="avatar-img" style="position: relative;">
+                                <span class="avatar_perso_xl" th:text="${supplier.initial}"></span>
+                                <img th:src="@{'/assets/avatars/face-1.jpg'}" alt="Default Avatar"
+                                     class="rounded-circle border border-light shadow-sm"
+                                     style="width: 130px; height: 130px;">
                             </div>
-                          </td>
+
+                        </div>
+                        <div class="col">
+                            <div class="row align-items-center">
+                                <div class="col-md-7">
+                                    <h4 class="mb-1" th:text="${supplier.supplierName}"></h4>
+                                    <p class="small mb-3"><span class="badge badge-dark"
+                                                                th:text="${supplier.country}"></span></p>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <p class="small mb-0 text-muted" th:text="${'Group : '+ supplier.supplierGroup}">
+                                        Group: -</p>
+                                    <p class="small mb-0 text-muted" th:text="${'Type : '+ supplier.supplierType}">Type:
+                                        -</p>
+                                    <p class="small mb-0 text-muted" th:text="${'Modified : '+ supplier.modified}">
+                                        Modified: -</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Supplier Quotation</h3>
+                    <p class="text-muted">This section shows the list of quotations received from the supplier,
+                        including details like their status, validity, and total amount.</p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <!-- table -->
+                                    <table class="table datatables" id="dataTable-1">
+                                        <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Valid Till</th>
+                                            <th>Grand Total</th>
+                                            <th>ID</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <th:block th:each="supplierQuotation, iterStat : ${supplierQuotations}">
+                                            <tr>
+                                                <td>
+                                                    <p class="mb-0 text-muted">
+                                                        <strong th:text="${supplierQuotation.title}">-</strong>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <span th:text="${supplierQuotation.status}"
+                                                          th:classappend="|${supplierQuotation.status == 'Draft' ? 'badge draft-color' : ''}
+                                                                          ${supplierQuotation.status == 'Submitted' ? 'badge submitted-color' : ''}
+                                                                          ${supplierQuotation.status == 'Ordered' ? 'badge ordered-color' : ''}
+                                                                          ${supplierQuotation.status == 'Cancelled' ? 'badge cancelled-color' : ''}|">
+                                                        -
+                                                    </span>
+                                                </td>
+                                                <td th:text="${supplierQuotation.transactionDate}">-</td>
+                                                <td th:text="${supplierQuotation.validTill}">-</td>
+                                                <td th:text="${supplierQuotation.grandTotal}">-</td>
+                                                <td>
+                                                    <p class="mb-0 text-muted">
+                                                        <strong th:text="${supplierQuotation.name}">-</strong>
+                                                    </p>
+                                                </td>
+
+                                                <td>
+                                                    <a th:if="${supplierQuotation.status == 'Draft'}"
+                                                       data-toggle="modal"
+                                                       data-target="#updatePricesModal"
+                                                       th:attr="data-supplier-name=${supplierQuotation.name}"
+                                                       href="#"
+                                                       style="text-decoration: none; color: inherit;">
+                                                        <i class="fe fe-edit fe-16"></i>
+                                                    </a>
+                                                    <i th:if="${supplierQuotation.status != 'Draft'}"
+                                                       class="fe fe-lock fe-16" style="color: gray;"></i>
+                                                </td>
+
+                                            </tr>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div>
+
+                    <div class="modal fade" id="updatePricesModal" tabindex="-1"
+                         aria-labelledby="updatePricesModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updatePricesModalLabel">Update Item Prices</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updatePricesForm">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th style="width: 25%;">Item</th>
+                                                <th style="width: 15%;">Current Rate</th>
+                                                <th style="width: 10%;">Qty</th>
+                                                <th style="width: 20%;">New Rate</th>
+                                                <th style="width: 15%;">Subtotal</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="itemsTableBody">
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
+                                                <td id="totalAmount">0</td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" id="saveAndSubmitBtn">Save & Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Purchase Order</h3>
+                    <p class="text-muted">This section displays the purchase orders made to the supplier, including
+                        order status and delivery dates.</p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <!-- table -->
+                                    <table class="table datatables" id="dataTable-2">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Grand Total</th>
+                                            <th>% Billed</th>
+                                            <th>% Received</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <th:block th:each="purchaseOrder, iterStat : ${purchaseOrders}">
+                                            <tr>
+                                                <td>
+                                                    <p class="mb-0 text-muted">
+                                                        <strong th:text="${purchaseOrder.name}">-</strong>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <span th:text="${purchaseOrder.status}"
+                                                          th:classappend="|${purchaseOrder.status == 'Draft' ? 'badge draft-color' : ''}
+                                                                          ${purchaseOrder.status == 'To Receive and Bill' ? 'badge to-receive-and-bill-color' : ''}
+                                                                          ${purchaseOrder.status == 'To Receive' ? 'badge to-receive-color' : ''}
+                                                                          ${purchaseOrder.status == 'To Bill' ? 'badge to-bill-color' : ''}
+                                                                          ${purchaseOrder.status == 'Completed' ? 'badge completed-color' : ''}
+                                                                          ${purchaseOrder.status == 'Cancelled' ? 'badge cancelled-color' : ''}
+                                                                          ${purchaseOrder.status == 'Closed' ? 'badge closed-color' : ''}
+                                                                          ${purchaseOrder.status == 'On Hold' ? 'badge on-hold-color' : ''}|">-
+                                                    </span>
+                                                </td>
+                                                <td th:text="${purchaseOrder.modified}">-</td>
+                                                <td th:text="${purchaseOrder.total}">-</td>
+                                                <td style="width: 120px;">
+                                                    <div class="progress progress-sm" style="height:3px;">
+                                                        <div class="progress-bar"
+                                                             role="progressbar"
+                                                             th:classappend="
+                                                                  ${purchaseOrder.perBilled >= 100} ? 'bg-success' :
+                                                                  (${purchaseOrder.perBilled >= 50} ? 'bg-info' :
+                                                                  (${purchaseOrder.perBilled >= 25} ? 'bg-warning' : 'bg-danger'))"
+                                                             th:style="'width: ' + ${purchaseOrder.perBilled} + '%'"
+                                                             th:attr="aria-valuenow=${purchaseOrder.perBilled}"
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td style="width: 120px;">
+                                                    <div class="progress progress-sm" style="height:3px;">
+                                                        <div class="progress-bar"
+                                                             role="progressbar"
+                                                             th:classappend="
+                                                                ${purchaseOrder.perReceived >= 100} ? 'bg-success' :
+                                                                (${purchaseOrder.perReceived >= 50} ? 'bg-info' :
+                                                                (${purchaseOrder.perReceived >= 25} ? 'bg-warning' : 'bg-danger'))"
+                                                             th:style="'width: ' + ${purchaseOrder.perReceived} + '%'"
+                                                             th:attr="aria-valuenow=${purchaseOrder.perReceived}"
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                </td>
 
 
-                        </tr>
-                      </th:block>
-                    </tbody>
-                  </table>
+                                            </tr>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
 
-                </div>
-              </div>
-            </div> <!-- simple table -->
-          </div>
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div>
 
-        </div> <!-- /.col-12 -->
-      </div> <!-- .row -->
-    </div> <!-- .container-fluid -->
-  </main>
+                </div> <!-- /.col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main>
 </div>
 <th:block th:replace="~{fragments/script.html}"></th:block>
 <script th:src="@{js/jquery.dataTables.min.js}"></script>
 <script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
 <script>
-  $('#dataTable-1').DataTable(
-    {
-      autoWidth: true,
-      "lengthMenu": [
-        [20, 100, 500, -1],
-        [20, 100, 500, "All"]
-      ]
-    });
+    $('#dataTable-1').DataTable(
+        {
+            autoWidth: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
 
-  $('#dataTable-2').DataTable(
-    {
-      autoWidth: true,
-      "lengthMenu": [
-        [20, 100, 500, -1],
-        [20, 100, 500, "All"]
-      ]
-    });
+    $('#dataTable-2').DataTable(
+        {
+            autoWidth: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
 </script>
 
 
 <script th:inline="javascript">
-  $('#updatePricesModal').on('show.bs.modal', function (event) {
-    const button = $(event.relatedTarget);
-    const supplierName = button.data('supplier-name');
+    $('#updatePricesModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const supplierName = button.data('supplier-name');
 
-    const modal = $(this);
-    modal.find('.modal-title').text('Update Prices for ' + supplierName);
-    $.ajax({
-      url: '/itemsBySupplierQuotation',
-      method: 'GET',
-      data: {
-        name: supplierName,
-      },
-      success: function(response) {
-        console.log('response', response);
-        const itemsTableBody = $('#itemsTableBody');
-        itemsTableBody.empty();
+        const modal = $(this);
+        modal.find('.modal-title').text('Update Prices for ' + supplierName);
+        $.ajax({
+            url: '/itemsBySupplierQuotation',
+            method: 'GET',
+            data: {
+                name: supplierName,
+            },
+            success: function (response) {
+                console.log('response', response);
+                const itemsTableBody = $('#itemsTableBody');
+                itemsTableBody.empty();
 
-        let grandTotal = 0;
+                let grandTotal = 0;
 
-        response.forEach(item => {
-          const subtotal = parseFloat(item.rate) * parseFloat(item.qty);
-          const row = `
+                response.forEach(item => {
+                    const subtotal = parseFloat(item.rate) * parseFloat(item.qty);
+                    const row = `
             <tr>
                 <td>${item.item_name}</td>
                 <td>${item.rate}</td>
@@ -297,81 +310,80 @@
                 <td class="item-subtotal">${subtotal.toFixed(2)}</td>
             </tr>
         `;
-          itemsTableBody.append(row);
+                    itemsTableBody.append(row);
 
-          grandTotal += subtotal;
+                    grandTotal += subtotal;
+                });
+
+                $('#totalAmount').text(grandTotal.toFixed(2));
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
         });
-
-        $('#totalAmount').text(grandTotal.toFixed(2));
-      },
-      error: function(xhr, status, error) {
-        console.error('Error:', error);
-      }
     });
-  });
 
-  function updateTotals() {
-    let total = 0;
-    $('#itemsTableBody tr').each(function () {
-      const qty = parseFloat($(this).find('input.new-rate-input').data('qty')) || 0;
-      let newRate = parseFloat($(this).find('input.new-rate-input').val());
-      if (isNaN(newRate) || newRate < 0) {
-        newRate = 0;
-        $(this).find('input.new-rate-input').val(0);
-      }
-      const subtotal = qty * newRate;
-      $(this).find('.item-subtotal').text(subtotal.toFixed(2));
-      total += subtotal;
-    });
-    $('#totalAmount').text(total.toFixed(2));
-  }
-
-  $('#itemsTableBody').on('input', '.new-rate-input', function () {
-    if (parseFloat($(this).val()) < 0) {
-      $(this).val(0);
+    function updateTotals() {
+        let total = 0;
+        $('#itemsTableBody tr').each(function () {
+            const qty = parseFloat($(this).find('input.new-rate-input').data('qty')) || 0;
+            let newRate = parseFloat($(this).find('input.new-rate-input').val());
+            if (isNaN(newRate) || newRate < 0) {
+                newRate = 0;
+                $(this).find('input.new-rate-input').val(0);
+            }
+            const subtotal = qty * newRate;
+            $(this).find('.item-subtotal').text(subtotal.toFixed(2));
+            total += subtotal;
+        });
+        $('#totalAmount').text(total.toFixed(2));
     }
-    updateTotals();
-  });
+
+    $('#itemsTableBody').on('input', '.new-rate-input', function () {
+        if (parseFloat($(this).val()) < 0) {
+            $(this).val(0);
+        }
+        updateTotals();
+    });
 
 
+    $('#saveAndSubmitBtn').on('click', function () {
+        const supplierName = $('#updatePricesModal .modal-title').text().replace('Update Prices for ', '').trim();
 
-  $('#saveAndSubmitBtn').on('click', function () {
-    const supplierName = $('#updatePricesModal .modal-title').text().replace('Update Prices for ', '').trim();
+        const updates = [];
 
-    const updates = [];
-
-    $('#itemsTableBody tr').each(function () {
-      const name = $(this).find('input.new-rate-input').data('item-name');
-      const newRate = parseFloat($(this).find('input.new-rate-input').val());
+        $('#itemsTableBody tr').each(function () {
+            const name = $(this).find('input.new-rate-input').data('item-name');
+            const newRate = parseFloat($(this).find('input.new-rate-input').val());
 
 
-      if (!isNaN(newRate)) {
-        updates.push({
-          name: name,
-          newRate: newRate
+            if (!isNaN(newRate)) {
+                updates.push({
+                    name: name,
+                    newRate: newRate
+                });
+            }
         });
-      }
-    });
 
-    console.log('Sending updates:', updates);
+        console.log('Sending updates:', updates);
 
-    $.ajax({
-      url: '/updateItemsPrices?quotationName=' + encodeURIComponent(supplierName),
-      method: 'PUT',
-      contentType: 'application/json',
-      data: JSON.stringify(updates),
-      success: function (response) {
-        console.log('Success:', response);
-        alert('Items updated successfully!');
-        $('#updatePricesModal').modal('hide');
-        location.reload();
-      },
-      error: function (xhr, status, error) {
-        console.error('Error:', error);
-        alert('An error occurred while updating items.');
-      }
+        $.ajax({
+            url: '/updateItemsPrices?quotationName=' + encodeURIComponent(supplierName),
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(updates),
+            success: function (response) {
+                console.log('Success:', response);
+                alert('Items updated successfully!');
+                $('#updatePricesModal').modal('hide');
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating items.');
+            }
+        });
     });
-  });
 
 </script>
 

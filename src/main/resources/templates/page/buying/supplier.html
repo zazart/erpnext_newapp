@@ -33,7 +33,7 @@
 
                                         <tbody>
                                         <th:block th:each="supplier, iterStat : ${suppliers}">
-                                            <tr class="supplier-row" th:attr="data-supplier=${supplier.name}" style="cursor: pointer;">
+                                            <tr class="doctype-row" th:attr="data-supplier=${supplier.name}" style="cursor: pointer;">
                                             <td>
                                                     <p class="mb-0 text-muted">
                                                         <strong th:text="${supplier.supplierName}">-</strong>
@@ -70,7 +70,7 @@
         });
 
     document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll(".supplier-row").forEach(function(row) {
+        document.querySelectorAll(".doctype-row").forEach(function(row) {
             row.addEventListener("click", function() {
                 const supplierName = this.dataset.supplier;
                 console.log(supplierName);

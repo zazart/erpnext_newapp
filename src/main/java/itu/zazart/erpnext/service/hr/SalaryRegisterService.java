@@ -1,0 +1,176 @@
+package itu.zazart.erpnext.service.hr;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import itu.zazart.erpnext.dto.RegisterSearch;
+import itu.zazart.erpnext.dto.SalaryRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+@Service
+public class SalaryRegisterService {
+    private final RestTemplate restTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(SalaryRegisterService.class);
+
+    @Value("${erpnext.api.url}")
+    private String erpnextApiUrl;
+
+    public SalaryRegisterService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    private String getText(JsonNode node, String key) {
+        return node.has(key) && !node.get(key).isNull() ? node.get(key).asText() : null;
+    }
+
+    private BigDecimal getDecimal(JsonNode node, String key) {
+        return node.has(key) && node.get(key).isNumber() ? node.get(key).decimalValue() : null;
+    }
+
+    Map<String, Object> copyExtrasWithNullValues(Map<String, Object> originalExtras) {
+        Map<String, Object> copy = new LinkedHashMap<>();
+        for (String key : originalExtras.keySet()) {
+            copy.put(key, null);
+        }
+        return copy;
+    }
+
+
+    public SalaryRegister parseTotalSalaryRegister(JsonNode columnsNode, JsonNode totalArrayNode, SalaryRegister registerModel) {
+        List<String> standardFields = Arrays.asList(
+                "salary_slip_id", "employee", "employee_name", "data_of_joining", "branch", "department",
+                "designation", "company", "start_date", "end_date", "leave_without_pay", "absent_days",
+                "payment_days", "gross_pay","total_loan_repayment", "total_deduction", "net_pay", "currency"
+        );
+        SalaryRegister totalRegister = new SalaryRegister();
+        Map<String, Object> extras = copyExtrasWithNullValues(registerModel.getExtras());
+        for (int i = 0; i < columnsNode.size(); i++) {
+            String key = columnsNode.get(i).path("fieldname").asText();
+            JsonNode valueNode = totalArrayNode.get(i);
+            if (valueNode == null || valueNode.isNull()) continue;
+            Object value = valueNode.isNumber() ? valueNode.decimalValue() : valueNode.asText();
+            if (standardFields.contains(key) && !(value instanceof String)) {
+                switch (key) {
+                    case "leave_without_pay": totalRegister.setLeaveWithoutPay((BigDecimal)value); break;
+                    case "absent_days": totalRegister.setAbsentDays((BigDecimal) value); break;
+                    case "payment_days": totalRegister.setPaymentDays((BigDecimal)value); break;
+                    case "gross_pay": totalRegister.setGrossPay((BigDecimal) value); break;
+                    case "total_loan_repayment" : totalRegister.setTotalLoanRepayment((BigDecimal)value); break;
+                    case "total_deduction": totalRegister.setTotalDeduction((BigDecimal)value); break;
+                    case "net_pay": totalRegister.setNetPay((BigDecimal)value); break;
+                }
+            } else {
+                if (extras.containsKey(key)) {
+                    extras.put(key,(BigDecimal) value);
+                }
+            }
+        }
+        totalRegister.setExtras(extras);
+        return totalRegister;
+    }
+
+    public List<SalaryRegister> parseSalaryRegisters(String jsonResponse) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(jsonResponse);
+        JsonNode results = root.path("message").path("result");
+        JsonNode columns = root.path("message").path("columns");
+
+        List<SalaryRegister> registers = new ArrayList<>();
+
+        for (JsonNode item : results) {
+            if (item.isObject()) {
+                SalaryRegister register = new SalaryRegister();
+                register.setSalarySlipId(getText(item, "salary_slip_id"));
+                register.setEmployee(getText(item, "employee"));
+                register.setEmployeeName(getText(item, "employee_name"));
+                register.setDateOfJoining(getText(item, "data_of_joining"));
+                register.setBranch(getText(item, "branch"));
+                register.setDepartment(getText(item, "department"));
+                register.setDesignation(getText(item, "designation"));
+                register.setCompany(getText(item, "company"));
+                register.setStartDate(getText(item, "start_date"));
+                register.setEndDate(getText(item, "end_date"));
+                register.setLeaveWithoutPay(getDecimal(item, "leave_without_pay"));
+                register.setAbsentDays(getDecimal(item, "absent_days"));
+                register.setPaymentDays(getDecimal(item, "payment_days"));
+                register.setGrossPay(getDecimal(item,"gross_pay"));
+                register.setTotalLoanRepayment(getDecimal(item, "total_loan_repayment"));
+                register.setTotalDeduction(getDecimal(item,"total_deduction"));
+                register.setNetPay(getDecimal(item,"net_pay"));
+                register.setCurrency(getText(item, "currency"));
+
+                Map<String, Object> extras = new LinkedHashMap<>();
+
+                Iterator<Map.Entry<String, JsonNode>> fields = item.fields();
+                Set<String> standardFields = Set.of(
+                        "salary_slip_id", "employee", "employee_name", "data_of_joining", "branch", "department",
+                        "designation", "company", "start_date", "end_date", "leave_without_pay", "absent_days",
+                        "payment_days", "gross_pay", "total_loan_repayment","total_deduction", "net_pay", "currency"
+                );
+
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fields.next();
+                    if (!standardFields.contains(field.getKey())) {
+                        JsonNode value = field.getValue();
+                        if (value.isNumber()) {
+                            extras.put(field.getKey(), value.decimalValue());
+                        } else {
+                            extras.put(field.getKey(), value.asText(null));
+                        }
+                    }
+                }
+                register.setExtras(extras);
+                registers.add(register);
+            }
+        }
+
+        JsonNode lastNode = results.get(results.size() - 1);
+        if (lastNode != null && lastNode.isArray() && !registers.isEmpty()) {
+            SalaryRegister totalRegister = parseTotalSalaryRegister(columns, lastNode, registers.get(0));
+            registers.add(totalRegister);
+        }
+
+        return registers;
+    }
+
+    public List<SalaryRegister> getSalaryRegister(String sid, RegisterSearch search) {
+        try {
+            String url = erpnextApiUrl + "/api/method/frappe.desk.query_report.run";
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("report_name", "Salary Register");
+
+            Map<String, String> filters = new HashMap<>();
+            if (search.getStartDate() != null) {
+                filters.put("from_date", search.getStartDate().toString());
+            }
+            if (search.getEndDate() != null) {
+                filters.put("to_date", search.getEndDate().toString());
+            }
+            filters.put("company", "My Company");
+            body.put("filters", filters);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cookie", "sid=" + sid);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+            return parseSalaryRegisters(response.getBody());
+        } catch (Exception e) {
+            logger.error("Error calling the Salary Register : {}", e.getMessage(), e);
+        }
+        return null;
+    }
+}

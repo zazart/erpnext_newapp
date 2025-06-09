@@ -1,0 +1,259 @@
+{
+  "message": {
+    "result": [
+      {
+        "salary_slip_id": "Sal Slip/HR-EMP-00014/00001",
+        "employee": "HR-EMP-00014",
+        "employee_name": "Alain Rakoto",
+        "data_of_joining": "2024-04-03",
+        "branch": null,
+        "department": null,
+        "designation": null,
+        "company": "My Company",
+        "start_date": "2025-06-01",
+        "end_date": "2025-06-30",
+        "leave_without_pay": 0.0,
+        "absent_days": 0.0,
+        "payment_days": 30.0,
+        "currency": "USD",
+        "total_loan_repayment": null,
+        "basic": null,
+        "indemnité": 450000.0,
+        "salaire_base": 1500000.0,
+        "taxe_sociale": 390000.0,
+        "gross_pay": 1950000.0,
+        "total_deduction": 390000.0,
+        "net_pay": 1560000.0
+      },
+      {
+        "salary_slip_id": "Sal Slip/HR-EMP-00014/00002",
+        "employee": "HR-EMP-00014",
+        "employee_name": "Alain Rakoto",
+        "data_of_joining": "2024-04-03",
+        "branch": null,
+        "department": null,
+        "designation": null,
+        "company": "My Company",
+        "start_date": "2025-07-01",
+        "end_date": "2025-07-31",
+        "leave_without_pay": 0.0,
+        "absent_days": 0.0,
+        "payment_days": 31.0,
+        "currency": "USD",
+        "total_loan_repayment": null,
+        "basic": 200.0,
+        "indemnité": null,
+        "salaire_base": 100.0,
+        "taxe_sociale": 20.0,
+        "gross_pay": 300.0,
+        "total_deduction": 20.0,
+        "net_pay": 280.0
+      },
+      {
+        "salary_slip_id": "Sal Slip/HR-EMP-00015/00001",
+        "employee": "HR-EMP-00015",
+        "employee_name": "Jeanne Josie Rasoa",
+        "data_of_joining": "2024-06-08",
+        "branch": null,
+        "department": null,
+        "designation": null,
+        "company": "My Company",
+        "start_date": "2025-06-01",
+        "end_date": "2025-06-30",
+        "leave_without_pay": 0.0,
+        "absent_days": 0.0,
+        "payment_days": 30.0,
+        "currency": "USD",
+        "total_loan_repayment": null,
+        "basic": null,
+        "indemnité": 270000.0,
+        "salaire_base": 900000.0,
+        "taxe_sociale": 234000.0,
+        "gross_pay": 1170000.0,
+        "total_deduction": 234000.0,
+        "net_pay": 936000.0
+      },
+      [
+        "Total",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        91.0,
+        200.0,
+        720000.0,
+        2400100.0,
+        3120300.0,
+        624020.0,
+        "",
+        624020.0,
+        2496280.0,
+        ""
+      ]
+    ],
+    "columns": [
+      {
+        "label": "Salary Slip ID",
+        "fieldname": "salary_slip_id",
+        "fieldtype": "Link",
+        "options": "Salary Slip",
+        "width": 150
+      },
+      {
+        "label": "Employee",
+        "fieldname": "employee",
+        "fieldtype": "Link",
+        "options": "Employee",
+        "width": 120
+      },
+      {
+        "label": "Employee Name",
+        "fieldname": "employee_name",
+        "fieldtype": "Data",
+        "width": 140
+      },
+      {
+        "label": "Date of Joining",
+        "fieldname": "data_of_joining",
+        "fieldtype": "Date",
+        "width": 80
+      },
+      {
+        "label": "Branch",
+        "fieldname": "branch",
+        "fieldtype": "Link",
+        "options": "Branch",
+        "width": -1
+      },
+      {
+        "label": "Department",
+        "fieldname": "department",
+        "fieldtype": "Link",
+        "options": "Department",
+        "width": -1
+      },
+      {
+        "label": "Designation",
+        "fieldname": "designation",
+        "fieldtype": "Link",
+        "options": "Designation",
+        "width": 120
+      },
+      {
+        "label": "Company",
+        "fieldname": "company",
+        "fieldtype": "Link",
+        "options": "Company",
+        "width": 120
+      },
+      {
+        "label": "Start Date",
+        "fieldname": "start_date",
+        "fieldtype": "Data",
+        "width": 80
+      },
+      {
+        "label": "End Date",
+        "fieldname": "end_date",
+        "fieldtype": "Data",
+        "width": 120
+      },
+      {
+        "label": "Leave Without Pay",
+        "fieldname": "leave_without_pay",
+        "fieldtype": "Float",
+        "width": 50
+      },
+      {
+        "label": "Absent Days",
+        "fieldname": "absent_days",
+        "fieldtype": "Float",
+        "width": 50
+      },
+      {
+        "label": "Payment Days",
+        "fieldname": "payment_days",
+        "fieldtype": "Float",
+        "width": 120
+      },
+      {
+        "label": "Basic",
+        "fieldname": "basic",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Indemnité",
+        "fieldname": "indemnité",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Salaire Base",
+        "fieldname": "salaire_base",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Gross Pay",
+        "fieldname": "gross_pay",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Taxe sociale",
+        "fieldname": "taxe_sociale",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Loan Repayment",
+        "fieldname": "total_loan_repayment",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Total Deduction",
+        "fieldname": "total_deduction",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Net Pay",
+        "fieldname": "net_pay",
+        "fieldtype": "Currency",
+        "options": "currency",
+        "width": 120
+      },
+      {
+        "label": "Currency",
+        "fieldtype": "Data",
+        "fieldname": "currency",
+        "options": "Currency",
+        "hidden": 1
+      }
+    ],
+    "message": null,
+    "chart": null,
+    "report_summary": null,
+    "skip_total_row": 0,
+    "status": null,
+    "execution_time": 0.016816,
+    "add_total_row": true
+  }
+}
+
