@@ -33,5 +33,6 @@ public class SalaryRegister {
     private String currency;
     private Map<String, Object> extras;
 
+    private RegisterSearch search;
 
 }

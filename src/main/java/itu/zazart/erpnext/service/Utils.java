@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -124,5 +125,10 @@ public class Utils {
         }
 
         return result.toString().trim();
+    }
+
+    public static LocalDate getLastDateOfMonth(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        return yearMonth.atEndOfMonth();
     }
 }

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+<body class="vertical light">
+<div class="wrapper">
+
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <h2 class="mb-2 page-title">Salary Register</h2>
+                    <p class="card-text">
+                        List of Salary Registers with dynamic search filters.
+                    </p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="toolbar row mb-3">
+                                        <div class="col">
+                                            <form class="form-inline">
+                                                <div class="form-row">
+                                                    <div class="form-group col-auto">
+                                                        <h5 class="card-title">List of Salary Registers</h5>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col ml-auto">
+                                            <div class="dropdown float-right">
+                                                <button class="btn btn-secondary  float-right ml-3" type="button"  data-toggle="modal" data-target="#varyModal" data-whatever="@mdo"><span class="fe fe-24 fe-filter myIco mr-2"></span> Search Filters</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <table class="table table-hover table-bordered border-v">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th class="th-three">Month</th>
+                                            <th class="th-three">Amount</th>
+                                            <th class="th-three">Salary Components</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:each="entry : ${salaryRegisters}">
+                                            <tr class="accordion-toggle collapsed"  th:id="'c-' + ${entry.key}" data-toggle="collapse"  th:attr="data-parent='#c-' + ${entry.key}" th:href="'#collap-' + ${entry.key}">
+                                                <td th:text="${entry.key}"></td>
+                                                <td class="text-right">
+                                                    <a th:if="${entry.value != null}"
+                                                       th:href="@{'/register?startDate=' + ${entry.value.get(0).search.startDate} + '&endDate=' + ${entry.value.get(0).search.endDate}}"
+                                                       th:text="${entry.value.get(entry.value.size() - 1).netPay}">
+                                                    </a>
+                                                    <span th:if="${entry.value == null}">0.00</span>
+                                                </td>
+
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="p-0">
+                                                    <div  th:id="'collap-' + ${entry.key}" class="collapse bg-light">
+                                                        <table class="table mb-0 table-bordered">
+                                                            <tbody>
+                                                                <th:block th:if="${entry.value != null}">
+                                                                    <th:block th:each="component : ${entry.value.get(entry.value.size() - 1).extras}">
+                                                                        <tr>
+                                                                            <td colspan="2" class="text-right" th:text="${component.value}"></td>
+                                                                            <div th:with="Utils=${T(itu.zazart.erpnext.service.Utils)}">
+                                                                                <span ></span>
+                                                                                <td class="th-three" th:text="${Utils.snakeCaseToWords(component.key)}"></td>
+                                                                            </div>
+
+                                                                        </tr>
+                                                                    </th:block>
+                                                                </th:block>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </th:block>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div> <!-- end section -->
+                </div> <!-- .col-12 -->
+            </div>
+        </div>
+    </main>
+
+
+
+    <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel" aria-hidden="true">
+        <div class="modal-dialog small-modal" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="varyModalLabel">Search Filters</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="searchForm" th:action="@{/statistics}" method="get">
+                        <div class="form-row">
+                            <div class="col-lg-12 col-md-12 mb-3">
+                                <label for="year">Year :</label>
+                                <select id="year" name="year" class="form-control">
+
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="searchForm" class="btn mb-2 btn-dark">Apply Filters</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+<script th:src="@{js/jquery.dataTables.min.js}"></script>
+<script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script>
+    $('#register').DataTable(
+        {
+            autoWidth: true,
+            scrollX: true,
+            scrollCollapse: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
+
+    $(document).ready(function () {
+        const currentYear = new Date().getFullYear();
+        const minYear = 2015;
+        const maxYear = currentYear;
+
+        const $select = $('#year');
+
+        for (let y = maxYear; y >= minYear; y--) {
+            const isSelected = (y === currentYear) ? 'selected' : '';
+            $select.append(`<option value="${y}" ${isSelected}>${y}</option>`);
+        }
+    });
+</script>
+
+
+<!--<script>-->
+<!--    const currentYear = new Date().getFullYear();-->
+<!--    const minYear = 2015;-->
+<!--    const maxYear = currentYear;-->
+
+<!--    const select = document.getElementById('year');-->
+
+<!--    for (let y = maxYear; y >= minYear; y&#45;&#45;) {-->
+<!--        const option = document.createElement('option');-->
+<!--        option.value = y;-->
+<!--        option.textContent = y;-->
+<!--        if (y === currentYear) option.selected = true;-->
+<!--        select.appendChild(option);-->
+<!--    }-->
+<!--</script>-->
+
+
+</body>
+
+</html>

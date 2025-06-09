@@ -226,6 +226,9 @@
     }
 }
 
+.small-modal{
+    width:30%;
+}
 
 .Active-color {
     background-color: #28A745;
@@ -242,4 +245,8 @@
 
 #register{
     min-width: 2000px;
+}
+
+.th-three {
+    width: 33.33%;
 }

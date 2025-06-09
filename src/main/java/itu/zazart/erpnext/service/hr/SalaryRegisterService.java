@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import itu.zazart.erpnext.dto.RegisterSearch;
 import itu.zazart.erpnext.dto.SalaryRegister;
+import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -172,5 +174,34 @@ public class SalaryRegisterService {
             logger.error("Error calling the Salary Register : {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    public List<SalaryRegister> getSalaryRegisterByYear(String sid,Integer year,int monthNumber) {
+        RegisterSearch search = new RegisterSearch();
+        LocalDate startDate = LocalDate.of(year, monthNumber, 1);
+        search.setStartDate(startDate);
+        search.setEndDate(Utils.getLastDateOfMonth(year, monthNumber));
+
+        List<SalaryRegister> list = getSalaryRegister(sid, search);
+        if (list.isEmpty()) {
+            return null;
+        }
+        list.get(0).setSearch(search);
+        return list;
+    }
+
+    public Map<String, Object> getAllSalaryRegisterByYearGroupByMonth(String sid,Integer year) {
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
+        Map<String, Object> salaryRegisters = new LinkedHashMap<>();
+        String[] months = {"January","February","March","April","May","June","July","August","September","October","November","December"};
+        int monthNumber = 1;
+        for(String month : months) {
+            salaryRegisters.put(month, getSalaryRegisterByYear(sid,year,monthNumber));
+            monthNumber++;
+        }
+
+        return salaryRegisters;
     }
 }
