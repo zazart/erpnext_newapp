@@ -19,13 +19,11 @@ public class HomeController {
     private final AuthService authService;
     private final UserService userService;
     private final SessionService sessionService;
-    private final DataService dataService;
 
-    public HomeController(AuthService authService, UserService userService, SessionService sessionService, DataService dataService) {
+    public HomeController(AuthService authService, UserService userService, SessionService sessionService) {
         this.authService = authService;
         this.userService = userService;
-        this.sessionService = sessionService;
-        this.dataService = dataService;
+        this.sessionService = sessionService;;
     }
 
     @GetMapping("/")
@@ -66,6 +64,11 @@ public class HomeController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    @GetMapping("trainView")
+    public String trainView(Model model) {
+        return "page/hr/trainView";
     }
 
 }
