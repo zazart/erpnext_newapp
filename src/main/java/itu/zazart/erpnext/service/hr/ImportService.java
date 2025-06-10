@@ -28,14 +28,16 @@ public class ImportService {
     private final SalaryComponentService salaryComponentService;
     private final SalaryStructureService salaryStructureService;
     private final SalaryStructureAssignmentService salaryStructureAssignmentService;
+    private final SalarySlipService salarySlipService;
     private static final Logger logger = LoggerFactory.getLogger(ImportService.class);
 
-    public ImportService(CompanyService companyService, EmployeeService employeeService, SalaryComponentService salaryComponentService, SalaryStructureService salaryStructureService, SalaryStructureAssignmentService salaryStructureAssignmentService) {
+    public ImportService(CompanyService companyService, EmployeeService employeeService, SalaryComponentService salaryComponentService, SalaryStructureService salaryStructureService, SalaryStructureAssignmentService salaryStructureAssignmentService, SalarySlipService salarySlipService) {
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.salaryComponentService = salaryComponentService;
         this.salaryStructureService = salaryStructureService;
         this.salaryStructureAssignmentService = salaryStructureAssignmentService;
+        this.salarySlipService = salarySlipService;
     }
 
     public String checkNaturalCompanyAbbreviation(String companyName) {
@@ -209,9 +211,13 @@ public class ImportService {
             }
         }
         for (SalaryComponent item : salaryComponentList) {
-            if (item.getName().equalsIgnoreCase(sc.getName()) &&
-                    item.getType().equalsIgnoreCase(sc.getType())) {
-                return item;
+            if (item.getName().equalsIgnoreCase(sc.getName())) {
+                if (!testRedefinition) {   // Stop here if you are just checking its existence
+                    return item;
+                }
+                if (!item.getType().equalsIgnoreCase(sc.getType())) { // if he tries to define another type
+                    return item;
+                }
             }
         }
         return null;
@@ -220,7 +226,7 @@ public class ImportService {
     public boolean detectSalaryComponentRedefinition(DataImport dataImport,SalaryComponent sc,List<ImportError> importErrors, ImportError baseError) {
         SalaryComponent existing = getSalaryComponentIfExist(sc, dataImport, true);
         if (existing!=null) {
-            String errorMessage = "Cannot redefine Salary Component '"+existing.getName()+"'";
+            String errorMessage = "Cannot redefine Salary Component '"+existing.getName()+"' ";
             errorMessage += "already exists with Type '"+existing.getType()+"' ";
             errorMessage += "and abbreviation '"+existing.getType()+"'";
             newImportError(importErrors, baseError,errorMessage);
@@ -432,7 +438,13 @@ public class ImportService {
         }
         for (SalaryStructureAssignment  ssa : dataImport.getSalaryStructureAssignmentList()) {  // Salary Structure Assignement
             ssa.setEmployee(ssa.getEmployeeObject().getName());
+            SalarySlip salarySlip = new SalarySlip();
+            salarySlip.setEmployee(ssa.getEmployee());
+            salarySlip.setCompany(ssa.getCompany());
+            salarySlip.setStart_date(ssa.getFromDate());
+            salarySlip.setSalary_structure(ssa.getSalaryStructure());
             salaryStructureAssignmentService.newSalaryStructureAssignment(sid, ssa);
+            salarySlipService.newSalarySlip(sid, salarySlip);
         }
     }
 
@@ -443,7 +455,7 @@ public class ImportService {
         readAndValidateFile(dataImport,importErrors,3,4);
 
         if (!importErrors.isEmpty()){
-            return;
+            throw new Exception("Error while importing");
         }
         insertAll(dataImport,sid);
     }

@@ -204,4 +204,54 @@ public class SalaryRegisterService {
 
         return salaryRegisters;
     }
+
+
+    public Map<String, Object> getDataChart(Map<String,Object> registerLists){
+        Set<String> allKeys = new HashSet<>();
+
+        for (Map.Entry<String, Object> entry : registerLists.entrySet()) {
+            List<SalaryRegister> valueList = (List<SalaryRegister>) entry.getValue();
+            if (valueList != null) {
+                if (!valueList.isEmpty()) {
+                    SalaryRegister salaryRegister = valueList.get(0);
+                    allKeys.addAll(salaryRegister.getExtras().keySet());
+                }
+            }
+
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        for (String key : allKeys) {
+            data.put(key, new double[12]);
+        }
+
+        data.put("TOTAL",new double[12]);
+
+        int numberOfMonth = 1;
+        for (Map.Entry<String, Object> entry : registerLists.entrySet()) {
+            List<SalaryRegister> valueList = (List<SalaryRegister>) entry.getValue();
+            if (valueList != null) {
+                if (!valueList.isEmpty()) {
+                    SalaryRegister total = valueList.get(valueList.size() - 1);
+                    Map<String, Object> extras = total.getExtras();
+
+                    double[] totalsEntry = (double[]) data.get("TOTAL");
+                    totalsEntry[numberOfMonth - 1] = total.getNetPay().doubleValue();
+
+                    for (Map.Entry<String, Object> extraEntry : extras.entrySet()) {
+                        String extraKey = extraEntry.getKey();
+                        Object extraValue = extraEntry.getValue();
+
+                        if (data.containsKey(extraKey) && extraValue != null) {
+                            double[] values = (double[]) data.get(extraKey);
+                            values[numberOfMonth - 1] = ((Number) extraValue).doubleValue();
+                        }
+                    }
+                }
+            }
+            numberOfMonth++;
+        }
+
+        return data;
+    }
 }

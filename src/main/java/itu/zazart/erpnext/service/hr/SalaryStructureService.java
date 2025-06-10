@@ -89,6 +89,7 @@ public class SalaryStructureService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("name", salaryStructure.getName());
             requestBody.put("company", salaryStructure.getCompany());
+            requestBody.put("payroll_frequency", "Monthly");
             requestBody.put("docstatus", 1);
             requestBody.put("currency", salaryStructure.getCurrency());
             requestBody.put("is_active", "Yes");

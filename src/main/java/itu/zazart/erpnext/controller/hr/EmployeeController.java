@@ -26,12 +26,26 @@ public class EmployeeController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
     private final EmployeeService employeeService;
     private final SalarySlipService salarySlipService;
+    private final DataService dataService;
 
-    public EmployeeController(SessionService sessionService, ImportService importService, EmployeeService employeeService, SalarySlipService salarySlipService) {
+    public EmployeeController(SessionService sessionService, ImportService importService, EmployeeService employeeService, SalarySlipService salarySlipService, DataService dataService) {
         this.sessionService = sessionService;
         this.importService = importService;
         this.employeeService = employeeService;
         this.salarySlipService = salarySlipService;
+        this.dataService = dataService;
+    }
+
+
+    @GetMapping("/reset")
+    public String deleteData(Model model){
+        if (!sessionService.isLoggedIn()) {
+            return "redirect:/";
+        }
+        User user = sessionService.getErpUser();
+        String sid = sessionService.getErpSid();
+        dataService.deleteAll(sid);
+        return "redirect:/import";
     }
 
     @GetMapping("/import")
@@ -64,7 +78,7 @@ public class EmployeeController {
             return "page/hr/import";
         }
 
-        model.addAttribute("successMessage", "Import réussi !");
+        model.addAttribute("successMessage", "Import successful !");
         return "page/hr/import";
     }
 

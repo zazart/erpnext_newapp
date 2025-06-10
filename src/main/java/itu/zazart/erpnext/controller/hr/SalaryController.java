@@ -1,5 +1,7 @@
 package itu.zazart.erpnext.controller.hr;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.model.hr.SalarySlip;
@@ -56,7 +58,7 @@ public class SalaryController {
     }
 
     @GetMapping("/statistics")
-    public String statistics(Model model, @RequestParam(name = "year", required = false) Integer year){
+    public String statistics(Model model, @RequestParam(name = "year", required = false) Integer year) throws JsonProcessingException {
         if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
@@ -64,6 +66,10 @@ public class SalaryController {
         model.addAttribute("user", user);
         String sid = sessionService.getErpSid();
         Map<String,Object> salaryRegisters = salaryRegisterService.getAllSalaryRegisterByYearGroupByMonth(sid,year);
+        Map<String,Object> data = salaryRegisterService.getDataChart(salaryRegisters);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonData = mapper.writeValueAsString(data);
+        model.addAttribute("jsonData", jsonData);
         model.addAttribute("salaryRegisters", salaryRegisters);
         return "page/hr/statistics";
     }

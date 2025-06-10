@@ -4,6 +4,7 @@ import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.service.AuthService;
 import itu.zazart.erpnext.service.SessionService;
 import itu.zazart.erpnext.service.UserService;
+import itu.zazart.erpnext.service.hr.DataService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,11 +19,13 @@ public class HomeController {
     private final AuthService authService;
     private final UserService userService;
     private final SessionService sessionService;
+    private final DataService dataService;
 
-    public HomeController(AuthService authService, UserService userService, SessionService sessionService) {
+    public HomeController(AuthService authService, UserService userService, SessionService sessionService, DataService dataService) {
         this.authService = authService;
         this.userService = userService;
         this.sessionService = sessionService;
+        this.dataService = dataService;
     }
 
     @GetMapping("/")

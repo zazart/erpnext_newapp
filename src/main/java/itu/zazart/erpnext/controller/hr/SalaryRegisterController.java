@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import itu.zazart.erpnext.service.Utils;
 
 @Controller
@@ -44,6 +47,7 @@ public class SalaryRegisterController {
             }
             totalRegister =  registerList.get(registerList.size()-1);
         }
+
         model.addAttribute("columnNames", columnNames);
         model.addAttribute("registerList", registerList);
         model.addAttribute("totalRegister", totalRegister);

@@ -67,7 +67,10 @@ public class EmployeeService {
     }
 
     public List<Employee> getEmployees(String sid, EmployeeSearch employeeSearch) {
-        String filters = buildFilters(employeeSearch);
+        String filters = "";
+        if (employeeSearch != null) {
+            filters = buildFilters(employeeSearch);
+        }
         String url = erpnextApiUrl + "/api/resource/Employee?filters=["+filters+"]&fields=[\"*\"]";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);

@@ -3,6 +3,7 @@ package itu.zazart.erpnext.service.hr;
 
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
+import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
 import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -174,5 +177,34 @@ public class SalarySlipService {
             logger.error("Error fetching Salary Slip from ERPNext: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+
+    public String newSalarySlip(String sid, SalarySlip salarySlip) {
+        String url = erpnextApiUrl + "/api/resource/Salary Slip";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            // Format des dates correct : "yyyy-MM-dd"
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            LocalDate start = salarySlip.getStart_date();
+            LocalDate end = Utils.getLastDateOfMonth(start.getYear(), start.getMonthValue());
+
+            requestBody.put("employee", salarySlip.getEmployee());
+            requestBody.put("company", salarySlip.getCompany());
+            requestBody.put("start_date", start.format(formatter));
+            requestBody.put("end_date", end.format(formatter));
+            requestBody.put("docstatus", 1);
+            requestBody.put("salary_structure", salarySlip.getSalary_structure());
+            requestBody.put("payroll_frequency", "Monthly");
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new Salary Slip", e);
+        }
     }
 }

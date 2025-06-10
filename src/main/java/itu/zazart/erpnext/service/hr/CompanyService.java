@@ -79,6 +79,7 @@ public class CompanyService {
             requestBody.put("company_name", company.getCompanyName());
             requestBody.put("abbr", company.getAbbr());
             requestBody.put("default_currency", company.getDefaultCurrency());
+            requestBody.put("default_holiday_list", "Holiday");
             requestBody.put("country", company.getCountry());
             requestBody.put("is_group", company.getIsGroup());
 

@@ -15,6 +15,7 @@
                     <p class="card-text">
                         List of Salary Registers with dynamic search filters.
                     </p>
+                    <div id="lineChart"></div>
                     <div class="row my-4">
                         <!-- Small table -->
                         <div class="col-md-12">
@@ -30,7 +31,7 @@
                                                 </div>
                                             </form>
                                         </div>
-                                        <div class="col ml-auto">
+                                        <div class="col ml-auto"  id="tableID" th:attr="data-data=${jsonData}"></div>
                                             <div class="dropdown float-right">
                                                 <button class="btn btn-secondary  float-right ml-3" type="button"  data-toggle="modal" data-target="#varyModal" data-whatever="@mdo"><span class="fe fe-24 fe-filter myIco mr-2"></span> Search Filters</button>
                                             </div>
@@ -91,6 +92,7 @@
                             </div>
                         </div> <!-- simple table -->
                     </div> <!-- end section -->
+
                 </div> <!-- .col-12 -->
             </div>
         </div>
@@ -136,6 +138,8 @@
 <th:block th:replace="~{fragments/script.html}"></th:block>
 <script th:src="@{js/jquery.dataTables.min.js}"></script>
 <script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script th:src="@{/apexcharts.min.js}"></script>
+<script th:src="@{/apexcharts.js}"></script>
 <script>
     $('#register').DataTable(
         {
@@ -163,21 +167,50 @@
 </script>
 
 
-<!--<script>-->
-<!--    const currentYear = new Date().getFullYear();-->
-<!--    const minYear = 2015;-->
-<!--    const maxYear = currentYear;-->
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        const dataDiv = document.getElementById("tableID");
+        const dataJson = dataDiv.getAttribute("data-data");
+        const data = JSON.parse(dataJson);
 
-<!--    const select = document.getElementById('year');-->
+        let seriesData = [];
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                seriesData.push({
+                    name: key,
+                    data: data[key]
+                });
+            }
+        }
 
-<!--    for (let y = maxYear; y >= minYear; y&#45;&#45;) {-->
-<!--        const option = document.createElement('option');-->
-<!--        option.value = y;-->
-<!--        option.textContent = y;-->
-<!--        if (y === currentYear) option.selected = true;-->
-<!--        select.appendChild(option);-->
-<!--    }-->
-<!--</script>-->
+        console.log("test");
+        new ApexCharts(document.querySelector("#lineChart"), {
+            series: seriesData,
+            chart: {
+                height: 350,
+                type: 'area',
+                zoom: {
+                    enabled: false
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'straight'
+            },
+            grid: {
+                row: {
+                    colors: ['#fffff', 'transparent'],
+                    opacity: 0.000006
+                },
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            }
+        }).render();
+    });
+</script>
 
 
 </body>
