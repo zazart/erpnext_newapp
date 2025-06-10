@@ -33,7 +33,7 @@ public class SalaryComponentService {
     }
 
     public List<SalaryComponent> getAllSalaryComponent(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Salary Component?fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Salary Component?limit_page_length=1000&fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
@@ -80,7 +80,7 @@ public class SalaryComponentService {
                     salaryComponent.setOnlyTaxImpact(Utils.toInt(item.get("only_tax_impact")));
 
                     listSalaryComponent.add(salaryComponent);
-                    logger.debug("Mapped Salary Component: {}", salaryComponent.getName());
+                    logger.info("Mapped Salary Component: {}", salaryComponent.getName());
                 }
                 return listSalaryComponent;
             } else {
@@ -100,6 +100,7 @@ public class SalaryComponentService {
         headers.set("Cookie", "sid=" + sid);
 
         try {
+            logger.info("Insertion of the salary component {}", salaryComponent.getSalaryComponent());
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("salary_component", salaryComponent.getSalaryComponent());
             requestBody.put("salary_component_abbr", salaryComponent.getSalaryComponentAbbr());
@@ -114,6 +115,7 @@ public class SalaryComponentService {
             return response.getBody();
 
         } catch (Exception e) {
+            logger.error("Error creating new Salary Component: {}", e.getMessage(), e);
             throw new RuntimeException("Error creating new Salary Component", e);
         }
     }

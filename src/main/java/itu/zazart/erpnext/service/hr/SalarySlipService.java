@@ -3,7 +3,6 @@ package itu.zazart.erpnext.service.hr;
 
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
-import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
 import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -131,7 +128,7 @@ public class SalarySlipService {
     }
 
     public List<SalarySlip> getSalarySlipsByEmployee(String sid, String employee) {
-        String url = erpnextApiUrl + "/api/resource/Salary Slip?filters=[[\"employee\",\"=\",\""+employee+"\"]]&fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Salary Slip?limit_page_length=1000&filters=[[\"employee\",\"=\",\""+employee+"\"]]&fields=[\"*\"]";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -145,7 +142,7 @@ public class SalarySlipService {
                     SalarySlip salarySlip = new SalarySlip();
                     setSalarySlipFields(item, salarySlip);
                     listSalarySlip.add(salarySlip);
-                    logger.debug("Mapped SalarySlip: {}", salarySlip.getName());
+                    logger.info("Mapped SalarySlip: {}", salarySlip.getName());
                 }
                 return listSalarySlip;
             } else {
@@ -186,6 +183,7 @@ public class SalarySlipService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         try {
+            logger.info("Insertion of the salary slip employee:{}", salarySlip.getEmployee());
             Map<String, Object> requestBody = new HashMap<>();
             // Format des dates correct : "yyyy-MM-dd"
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -204,6 +202,7 @@ public class SalarySlipService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             return response.getBody();
         } catch (Exception e) {
+            logger.error("Error creating new Salary Slip");
             throw new RuntimeException("Error creating new Salary Slip", e);
         }
     }

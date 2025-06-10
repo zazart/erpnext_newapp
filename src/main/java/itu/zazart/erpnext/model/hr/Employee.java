@@ -100,4 +100,12 @@ public class Employee {
     private int lft;
     private int rgt;
     private String oldParent;
+
+
+    public String getInitial() {
+        if (employeeName != null && !employeeName.isEmpty()) {
+            return employeeName.substring(0, 1).toUpperCase();
+        }
+        return "?";
+    }
 }

@@ -29,7 +29,7 @@ public class SalaryStructureAssignmentService {
     }
 
     public List<SalaryStructureAssignment> getAllSalaryStructureAssignment(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment?fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment?limit_page_length=1000&fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
@@ -68,7 +68,7 @@ public class SalaryStructureAssignmentService {
                     salaryStructureAssignment.setTaxDeductedTillDate(BigDecimal.valueOf(Utils.toInt(item.get("tax_deducted_till_date"))));
 
                     listSalaryStructureAssignment.add(salaryStructureAssignment);
-                    logger.debug("Mapped Salary Structure Assignment: {}", salaryStructureAssignment.getName());
+                    logger.info("Mapped Salary Structure Assignment: {}", salaryStructureAssignment.getName());
                 }
                 return listSalaryStructureAssignment;
             } else {
@@ -87,6 +87,8 @@ public class SalaryStructureAssignmentService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         try {
+            logger.info("Insertion of the salary structure assignement employee:{}", assignment.getEmployee());
+            logger.info("date:{}", Utils.formatDate(assignment.getFromDate()));
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("employee", assignment.getEmployee());
             requestBody.put("salary_structure", assignment.getSalaryStructure());
@@ -100,6 +102,7 @@ public class SalaryStructureAssignmentService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             return response.getBody();
         } catch (Exception e) {
+            logger.error("Error creating new Salary Structure Assignment");
             throw new RuntimeException("Error creating new Salary Structure Assignment", e);
         }
     }

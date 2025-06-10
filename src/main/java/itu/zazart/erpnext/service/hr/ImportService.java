@@ -108,11 +108,18 @@ public class ImportService {
     public LocalDate validDate(String dateStr, List<ImportError> importErrors,ImportError baseError) {
         dateStr = dateStr.trim().replaceAll("\u00A0", "");
 
-        String[] formats = {"yyyy-MM-dd", "yyyy/MM/dd", "dd-MM-yyyy", "dd/MM/yyyy"};
+        String[] formats = {
+                // YEAR MONTH DAY
+                "yyyy-MM-dd", "yyyy-M-d","yyyy-MM-d","yyyy-M-dd",
+                "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d","yyyy/M/dd",
+                // DAY MONTH YEAR
+                "dd-MM-yyyy", "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy",
+                "dd/MM/yyyy", "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy"
+        };
 
         for (String format : formats) {
             try {
-                logger.debug("Trying to parse date '{}' with format '{}'", dateStr, format);
+                logger.info("Trying to parse date '{}' with format '{}'", dateStr, format);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format)
                         .withResolverStyle(ResolverStyle.STRICT);
                 TemporalAccessor ta = formatter.parse(dateStr);
@@ -121,7 +128,7 @@ public class ImportService {
                 int year = ta.get(ChronoField.YEAR_OF_ERA);
                 return LocalDate.of(year, month, day);
             } catch (DateTimeParseException e) {
-                logger.debug("Parsing failed with format '{}'", format);
+                logger.info("Parsing failed with format '{}'", format);
             } catch (Exception e) {
                 logger.warn("Unexpected error while parsing date '{}' with format '{}'", dateStr, format, e);
             }
@@ -343,19 +350,33 @@ public class ImportService {
         SalaryStructure salaryStructure = isExistingSalaryStructure(dataImport,importErrors,salary);
         if  (salaryStructure == null) {
             salaryStructure = isSalaryStructureInNewList(dataImport,salary);
+            if (salaryStructure == null) {
+                String errorMessage = "The Salary Structure '"+salary+"' doesn't exist";
+                newImportError(importErrors, baseError,errorMessage);
+                return;
+            }
         }
 
         Employee employee = checkEmployeeByRef(dataImport, ref);
+        if  (employee == null) {
+            String errorMessage = "The Employee with ref '"+ref+"' doesn't exist";
+            newImportError(importErrors, baseError,errorMessage);
+            return;
+        }
 
         ssa.setFromDate(validDate(tokens[0].trim(),importErrors, baseError));
+
+        if (ssa.getFromDate().isBefore(employee.getDateOfJoining())){
+            String errorMessage = "The from_date Assignment '"+ssa.getFromDate()+"' couldn't be before Employee's date of joining ";
+            newImportError(importErrors, baseError,errorMessage);
+            return;
+        }
         ssa.setEmployeeObject(employee);
         ssa.setBase(validateBaseAmount(importErrors, baseError, tokens[2]));
 
-        if (salaryStructure != null) {
-            ssa.setSalaryStructure(salaryStructure.getName());
-            ssa.setCompany(salaryStructure.getCompany());
-            ssa.setCurrency(salaryStructure.getCurrency());
-        }
+        ssa.setSalaryStructure(salaryStructure.getName());
+        ssa.setCompany(salaryStructure.getCompany());
+        ssa.setCurrency(salaryStructure.getCurrency());
 
         int statusCode = isSalaryStructureAssignementInNewList(dataImport,ssa);
         if (statusCode == 1) {
@@ -395,7 +416,7 @@ public class ImportService {
                 String[] tokens = line.split(",");
 
                 if (tokens.length < numberColumn){
-                    String errorMessage = "Invalid row: less than " +numberColumn+ "columns";
+                    String errorMessage = "Invalid row: less than " +numberColumn+ " columns";
                     newImportError(importErrors, baseError,errorMessage);
                     continue;
                 }
@@ -423,19 +444,24 @@ public class ImportService {
     }
 
     public void insertAll(DataImport dataImport, String sid) {
+        logger.info("Inserting the Company list");
         for (Company company : dataImport.getCompanyList()) {// Company
             company.setCompanyName(company.getName());
             companyService.newCompany(sid, company);
         }
+        logger.info("Inserting the Employee list");
         for (Employee employee : dataImport.getEmployeeList()) {    // Employee
             employeeService.newEmployee(sid, employee);
         }
+        logger.info("Inserting the Salary Component list");
         for (SalaryComponent salaryComponent : dataImport.getSalaryComponentList()) {   // Salary Component
             salaryComponentService.newSalaryComponent(sid, salaryComponent);
         }
+        logger.info("Inserting the Salary Structure list");
         for (SalaryStructure salaryStructure : dataImport.getSalaryStructureList()) {   // Salary Structure
             salaryStructureService.newSalaryStructure(sid, salaryStructure);
         }
+        logger.info("Inserting the SalaryStructureAssignment list with a SalarySlip of each");
         for (SalaryStructureAssignment  ssa : dataImport.getSalaryStructureAssignmentList()) {  // Salary Structure Assignement
             ssa.setEmployee(ssa.getEmployeeObject().getName());
             SalarySlip salarySlip = new SalarySlip();
@@ -446,15 +472,21 @@ public class ImportService {
             salaryStructureAssignmentService.newSalaryStructureAssignment(sid, ssa);
             salarySlipService.newSalarySlip(sid, salarySlip);
         }
+        logger.info("The end of the insertions");
     }
 
     public void importData(DataImport dataImport, List<ImportError> importErrors,String sid) throws Exception {
         prepareImportContext(dataImport,sid);
+        logger.info("Import Context is ready, Importing data ...");
         readAndValidateFile(dataImport,importErrors,1,7);
+        logger.info("File 1, end end of reading");
         readAndValidateFile(dataImport,importErrors,2,6);
+        logger.info("File 2, end end of reading");
         readAndValidateFile(dataImport,importErrors,3,4);
+        logger.info("File 3, end end of reading");
 
         if (!importErrors.isEmpty()){
+            logger.error("There are errors in the error list.");
             throw new Exception("Error while importing");
         }
         insertAll(dataImport,sid);

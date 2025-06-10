@@ -3,6 +3,8 @@ package itu.zazart.erpnext.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.Locale;
 
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
@@ -130,5 +133,14 @@ public class Utils {
     public static LocalDate getLastDateOfMonth(int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         return yearMonth.atEndOfMonth();
+    }
+
+    public static String formatNumberWithSeparators(Double number) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setGroupingSeparator(',');  // séparateur de milliers
+        symbols.setDecimalSeparator('.');   // séparateur décimal
+
+        DecimalFormat df = new DecimalFormat("#,##0.00", symbols);
+        return df.format(number);
     }
 }

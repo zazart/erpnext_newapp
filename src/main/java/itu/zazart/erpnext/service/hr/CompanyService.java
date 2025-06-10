@@ -30,7 +30,7 @@ public class CompanyService {
     }
 
     public List<Company> getAllCompanies(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Company?fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Company?limit_page_length=1000&fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
@@ -56,7 +56,7 @@ public class CompanyService {
                     comp.setCountry((String) item.get("country"));
                     comp.setIsGroup(Utils.toInt(item.get("is_group")));
                     companies.add(comp);
-                    logger.debug("Mapped Company: {}", comp.getName());
+                    logger.info("Mapped Company: {}", comp.getName());
                 }
                 return companies;
             } else {
@@ -74,7 +74,7 @@ public class CompanyService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         try {
-
+            logger.info("Insertion of the company "+company.getCompanyName());
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("company_name", company.getCompanyName());
             requestBody.put("abbr", company.getAbbr());
@@ -87,6 +87,7 @@ public class CompanyService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             return response.getBody();
         } catch (Exception e) {
+            logger.error("Error creating new Company: {}", e.getMessage(), e);
             throw new RuntimeException("Error creating new Company");
         }
     }

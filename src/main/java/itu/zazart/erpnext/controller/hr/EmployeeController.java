@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class EmployeeController {
@@ -108,6 +109,7 @@ public class EmployeeController {
         Employee employee = employeeService.getEmployeeByName(sid,employeeName);
         List<SalarySlip> salarySlipList = salarySlipService.getSalarySlipsByEmployee(sid,employeeName);
 
+        model.addAttribute("localeEn", Locale.ENGLISH);
         model.addAttribute("employee",employee);
         model.addAttribute("salarySlipList", salarySlipList);
         return "page/hr/fiche_employee";
