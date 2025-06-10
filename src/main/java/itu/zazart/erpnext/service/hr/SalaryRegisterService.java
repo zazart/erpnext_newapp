@@ -159,7 +159,7 @@ public class SalaryRegisterService {
             if (search.getEndDate() != null) {
                 filters.put("to_date", search.getEndDate().toString());
             }
-            filters.put("company", "My Company");
+            filters.put("company", "");
             body.put("filters", filters);
 
             HttpHeaders headers = new HttpHeaders();
