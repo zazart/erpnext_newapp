@@ -467,8 +467,8 @@ public class ImportService {
             SalarySlip salarySlip = new SalarySlip();
             salarySlip.setEmployee(ssa.getEmployee());
             salarySlip.setCompany(ssa.getCompany());
-            salarySlip.setStart_date(ssa.getFromDate());
-            salarySlip.setSalary_structure(ssa.getSalaryStructure());
+            salarySlip.setStartDate(ssa.getFromDate());
+            salarySlip.setSalaryStructure(ssa.getSalaryStructure());
             salaryStructureAssignmentService.newSalaryStructureAssignment(sid, ssa);
             salarySlipService.newSalarySlip(sid, salarySlip);
         }

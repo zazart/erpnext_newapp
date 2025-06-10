@@ -131,9 +131,9 @@
                                                         ></strong>
                                                     </p>
                                                 </td>
-                                                <td th:text="${#temporals.format(salarySlip.start_date, 'MMM yyyy', localeEn)}"></td>
-                                                <td th:text="${#numbers.formatDecimal(salarySlip.gross_pay, 0, 'COMMA', 2, 'POINT')}"></td>
-                                                <td th:text="${#numbers.formatDecimal(salarySlip.net_pay, 0, 'COMMA', 2, 'POINT')}"></td>
+                                                <td th:text="${#temporals.format(salarySlip.startDate, 'MMM yyyy', localeEn)}"></td>
+                                                <td th:text="${#numbers.formatDecimal(salarySlip.grossPay, 0, 'COMMA', 2, 'POINT')}"></td>
+                                                <td th:text="${#numbers.formatDecimal(salarySlip.netPay, 0, 'COMMA', 2, 'POINT')}"></td>
                                                 <td> <img class="pdf-row" th:src="@{'/assets/images/pdf.png'}" alt="Default Avatar"
                                                           style="width: 30px; height: 30px; cursor:pointer"></td>
                                             </tr>
