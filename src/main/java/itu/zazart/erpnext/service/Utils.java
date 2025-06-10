@@ -136,6 +136,10 @@ public class Utils {
     }
 
     public static String formatNumberWithSeparators(Double number) {
+        if (number == null) {
+            return "0.00";
+        }
+
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setGroupingSeparator(',');  // séparateur de milliers
         symbols.setDecimalSeparator('.');   // séparateur décimal
