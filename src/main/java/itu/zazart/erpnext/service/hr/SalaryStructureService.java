@@ -30,7 +30,7 @@ public class SalaryStructureService {
     }
 
     public List<SalaryStructure> getAllSalaryStructure(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Salary Structure?fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Salary Structure?limit_page_length=1000&fields=[\"*\"]";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
@@ -69,7 +69,7 @@ public class SalaryStructureService {
                     salaryStructure.setModeOfPayment((String)item.get("mode_of_payment"));
                     salaryStructure.setPaymentAccount((String)item.get("payment_account"));
                     listSalaryStructure.add(salaryStructure);
-                    logger.debug("Mapped Salary Structure: {}", salaryStructure.getName());
+                    logger.info("Mapped Salary Structure: {}", salaryStructure.getName());
                 }
                 return listSalaryStructure;
             } else {
@@ -86,9 +86,11 @@ public class SalaryStructureService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         try {
+            logger.info("Insertion of the salary structure {}", salaryStructure.getName());
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("name", salaryStructure.getName());
             requestBody.put("company", salaryStructure.getCompany());
+            requestBody.put("payroll_frequency", "Monthly");
             requestBody.put("docstatus", 1);
             requestBody.put("currency", salaryStructure.getCurrency());
             requestBody.put("is_active", "Yes");
@@ -120,6 +122,7 @@ public class SalaryStructureService {
             return response.getBody();
 
         } catch (Exception e) {
+            logger.error("Error creating new Salary Structure: {}", e.getMessage(), e);
             throw new RuntimeException("Error creating new Salary Structure", e);
         }
     }

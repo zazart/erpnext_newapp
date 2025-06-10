@@ -2,6 +2,7 @@ package itu.zazart.erpnext;
 
 import itu.zazart.erpnext.model.hr.Company;
 import itu.zazart.erpnext.model.hr.Employee;
+import itu.zazart.erpnext.service.Utils;
 import itu.zazart.erpnext.service.hr.CompanyService;
 import itu.zazart.erpnext.service.hr.EmployeeService;
 import itu.zazart.erpnext.service.hr.SalarySlipService;
@@ -97,6 +98,14 @@ class ErpnextApplicationTests {
 	void getSalarySlipByName(){
 		String name = "Sal Slip/HR-EMP-00014/00001";
 		salarySlipService.getSalarySlipByName(testSid, name);
+	}
+
+
+	public static void main(String[] args) {
+		System.out.println(Utils.getLastDateOfMonth(2025, 2));  // 2025-02-28
+		System.out.println(Utils.getLastDateOfMonth(2024, 2));  // 2024-02-29 (année bissextile)
+		System.out.println(Utils.getLastDateOfMonth(2025, 4));  // 2025-04-30
+		System.out.println(Utils.getLastDateOfMonth(2025, 12)); // 2025-12-31
 	}
 
 }

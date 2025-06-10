@@ -20,9 +20,12 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
+import itu.zazart.erpnext.service.Utils;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ExportPdfService {
@@ -87,7 +90,10 @@ public class ExportPdfService {
 
         Paragraph leftTitle = getParagraph(salarySlip.getName(),16,"#333333").setBold();
         Paragraph rightTitle = getParaField("Payslip For the Month");
-        Paragraph rightSubTitle = getParagraph("June 2023",12,"#000000");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+        String formatted = salarySlip.getStart_date().format(formatter);
+        Paragraph rightSubTitle = getParagraph(formatted,12,"#000000");
 
         Cell leftCell = new Cell().add(leftTitle).setVerticalAlignment(VerticalAlignment.MIDDLE);
         Cell rightCell = new Cell().setTextAlignment(TextAlignment.RIGHT).setVerticalAlignment(VerticalAlignment.MIDDLE);
@@ -140,8 +146,9 @@ public class ExportPdfService {
         Table rightInnerTable = new Table(1)
                 .useAllAvailableWidth();
 
+        String formattedNetPay = Utils.formatNumberWithSeparators(salarySlip.getNet_pay().doubleValue());
         Cell netPayCell = new Cell()
-                .add(getParagraph( salarySlip.getCurrency()+" "+salarySlip.getNet_pay().toString(),18,"#000000"))
+                .add(getParagraph( salarySlip.getCurrency()+" "+formattedNetPay,18,"#000000"))
                 .add(getParagraph("Employee Net Pay",10,"#69886f"))
                 .setBackgroundColor(getColor("#edfcf1"))
                 .setBorder(Border.NO_BORDER)
@@ -153,7 +160,10 @@ public class ExportPdfService {
                 .setMargins(10, 10, 10, 10);
 
         String[] payDetailsFields = {"Payment Days","Total Working Days"};
-        String[] payDetailsValues = {salarySlip.getPayment_days().toString(),salarySlip.getTotal_working_days().toString()};
+        String[] payDetailsValues = {
+                Utils.formatNumberWithSeparators(salarySlip.getPayment_days().doubleValue()),
+                Utils.formatNumberWithSeparators(salarySlip.getTotal_working_days().doubleValue())
+        };
         generateTableCell(payDetailsFields,payDetailsValues,payDetailsTable);
 
         Cell detailsCell = new Cell()
@@ -204,9 +214,9 @@ public class ExportPdfService {
         String[] rightFields = {"Payroll Frenquency","Unmarked Days","Leave withoud Day","Absent Days"};
         String[] rightValues = {
                 salarySlip.getPayroll_frequency(),
-                salarySlip.getUnmarked_days().toString(),
-                salarySlip.getLeave_without_pay().toString(),
-                salarySlip.getAbsent_days().toString()
+                Utils.formatNumberWithSeparators(salarySlip.getUnmarked_days().doubleValue()),
+                Utils.formatNumberWithSeparators(salarySlip.getLeave_without_pay().doubleValue()),
+                Utils.formatNumberWithSeparators(salarySlip.getAbsent_days().doubleValue())
         };
         generateTableCell(rightFields,rightValues,rightInnerTable);
 
@@ -240,7 +250,7 @@ public class ExportPdfService {
     private void showSalaryComponent(List<SalaryComponent> salaryComponents,Table table) throws IOException {
         for (int i = 0; i < salaryComponents.size(); i++) {
             Paragraph compName = getComponentPargraph(salaryComponents.get(i).getSalaryComponent());
-            Paragraph componentValue = getParagraph(salaryComponents.get(i).getAmount().toString(), 9, "#333333");
+            Paragraph componentValue = getParagraph(Utils.formatNumberWithSeparators(salaryComponents.get(i).getAmount().doubleValue()), 9, "#333333");
             Cell componentNameCell = new Cell().add(compName.setMarginBottom(10)).setBorder(Border.NO_BORDER).setPadding(0);
             Cell componentValueCell = new Cell().add(componentValue).setTextAlignment(TextAlignment.RIGHT).setBold().setBorder(Border.NO_BORDER).setPadding(0);
             if(i==0){
@@ -270,9 +280,9 @@ public class ExportPdfService {
                 .useAllAvailableWidth();
 
         totalsTable.addCell(new Cell().add(getComponentPargraph("Gross Pay").setFontColor(getColor("#333333")).setMargin(10).setBold()).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
-        totalsTable.addCell(new Cell().add(getParagraph(salarySlip.getGross_pay().toString(), 9, "#333333").setMargin(10).setBold()).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
+        totalsTable.addCell(new Cell().add(getParagraph(Utils.formatNumberWithSeparators(salarySlip.getGross_pay().doubleValue()), 9, "#333333").setMargin(10).setBold()).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
         totalsTable.addCell(new Cell().add(getComponentPargraph("Total Deductions").setFontColor(getColor("#333333")).setMargin(10).setBold()).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
-        totalsTable.addCell(new Cell().add(getParagraph(salarySlip.getTotal_deduction().toString(), 9, "#333333").setMargin(10).setBold()).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
+        totalsTable.addCell(new Cell().add(getParagraph(Utils.formatNumberWithSeparators(salarySlip.getTotal_deduction().doubleValue()), 9, "#333333").setMargin(10).setBold()).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setBackgroundColor(getColor("#f8f8fb")));
 
         Table wrapper = new Table(1).useAllAvailableWidth();
         Cell wrapperCell = new Cell()
@@ -306,7 +316,7 @@ public class ExportPdfService {
 
 
         Cell detailsCell = new Cell()
-                .add(getParagraph( salarySlip.getCurrency()+" "+salarySlip.getNet_pay().toString(), 10, "#333333").setBold())
+                .add(getParagraph( salarySlip.getCurrency()+" "+Utils.formatNumberWithSeparators(salarySlip.getNet_pay().doubleValue()), 10, "#333333").setBold())
                 .setBackgroundColor(getColor("#edfcf1"))
                 .setTextAlignment(TextAlignment.CENTER)
                 .setVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -323,7 +333,7 @@ public class ExportPdfService {
 
         Paragraph line = new Paragraph()
                 .add(new Text("Amount In Words: ").setFontSize(9).setFontColor(getColor("#746f6f")))
-                .add(new Text("Indian Rupee Thirty Thousand Only").setFontSize(9).setFontColor(getColor("#000000")))
+                .add(new Text(salarySlip.getTotal_in_words()).setFontSize(9).setFontColor(getColor("#000000")))
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setMarginTop(20)
                 .setMarginBottom(20);

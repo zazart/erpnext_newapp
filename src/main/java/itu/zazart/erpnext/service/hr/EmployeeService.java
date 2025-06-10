@@ -67,8 +67,11 @@ public class EmployeeService {
     }
 
     public List<Employee> getEmployees(String sid, EmployeeSearch employeeSearch) {
-        String filters = buildFilters(employeeSearch);
-        String url = erpnextApiUrl + "/api/resource/Employee?filters=["+filters+"]&fields=[\"*\"]";
+        String filters = "";
+        if (employeeSearch != null) {
+            filters = buildFilters(employeeSearch);
+        }
+        String url = erpnextApiUrl + "/api/resource/Employee?limit_page_length=1000&filters=["+filters+"]&fields=[\"*\"]";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -82,7 +85,7 @@ public class EmployeeService {
                     Employee employee = new Employee();
                     setEmployeeFields(item, employee);
                     listEmployee.add(employee);
-                    logger.debug("Mapped Employee: {}", employee.getName());
+                    logger.info("Mapped Employee: {}", employee.getName());
                 }
                 return listEmployee;
             } else {
@@ -100,7 +103,7 @@ public class EmployeeService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         try {
-
+            logger.info("Insertion of the employee "+employee.getFirstName());
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("first_name", employee.getFirstName());
             requestBody.put("last_name", employee.getLastName());
@@ -121,6 +124,7 @@ public class EmployeeService {
                 logger.warn("No 'data' field found in the response body.");
             }
         } catch (Exception e) {
+            logger.error("Error creating new Employee: {}", e.getMessage(), e);
             throw new RuntimeException("Error creating new Employee", e);
         }
     }

@@ -73,12 +73,13 @@
                                                 <td th:text="${register.endDate}"></td>
 
                                                 <th:block th:each="entry : ${register.extras}">
-                                                    <th th:text="${entry.value}"></th>
+                                                    <th class="droite" th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 2, 'POINT')}"></th>
                                                 </th:block>
 
-                                                <td th:text="${register.grossPay}"></td>
-                                                <td th:text="${register.totalDeduction}"></td>
-                                                <td th:text="${register.netPay}"></td>
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.grossPay, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.totalDeduction, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.netPay, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+
                                             </tr>
                                         </th:block>
 
@@ -90,14 +91,14 @@
 
                                             <th:block th:if="${totalRegister != null}">
                                                 <th:block th:each="entry : ${totalRegister.extras}">
-                                                    <th th:text="${entry.value}"></th>
+                                                    <th class="droite" style="text-align: right;" th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 2, 'POINT')}"></th>
                                                 </th:block>
                                             </th:block>
 
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.grossPay, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.totalDeduction, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.netPay, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
 
-                                            <th th:text="${totalRegister != null ? totalRegister.grossPay : '0.00'}">0.00</th>
-                                            <th th:text="${totalRegister != null ? totalRegister.totalDeduction : '0.00'}">0.00</th>
-                                            <th th:text="${totalRegister != null ? totalRegister.netPay : '0.00'}">0.00</th>
                                         </tr>
                                         </tfoot>
 

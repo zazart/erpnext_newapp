@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import itu.zazart.erpnext.dto.RegisterSearch;
 import itu.zazart.erpnext.dto.SalaryRegister;
+import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -157,7 +159,7 @@ public class SalaryRegisterService {
             if (search.getEndDate() != null) {
                 filters.put("to_date", search.getEndDate().toString());
             }
-            filters.put("company", "My Company");
+            filters.put("company", "");
             body.put("filters", filters);
 
             HttpHeaders headers = new HttpHeaders();
@@ -172,5 +174,84 @@ public class SalaryRegisterService {
             logger.error("Error calling the Salary Register : {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    public List<SalaryRegister> getSalaryRegisterByYear(String sid,Integer year,int monthNumber) {
+        RegisterSearch search = new RegisterSearch();
+        LocalDate startDate = LocalDate.of(year, monthNumber, 1);
+        search.setStartDate(startDate);
+        search.setEndDate(Utils.getLastDateOfMonth(year, monthNumber));
+
+        List<SalaryRegister> list = getSalaryRegister(sid, search);
+        if (list.isEmpty()) {
+            return null;
+        }
+        list.get(0).setSearch(search);
+        return list;
+    }
+
+    public Map<String, Object> getAllSalaryRegisterByYearGroupByMonth(String sid,Integer year) {
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
+        Map<String, Object> salaryRegisters = new LinkedHashMap<>();
+        String[] months = {"January","February","March","April","May","June","July","August","September","October","November","December"};
+        int monthNumber = 1;
+        for(String month : months) {
+            salaryRegisters.put(month, getSalaryRegisterByYear(sid,year,monthNumber));
+            monthNumber++;
+        }
+
+        return salaryRegisters;
+    }
+
+
+    public Map<String, Object> getDataChart(Map<String,Object> registerLists){
+        Set<String> allKeys = new HashSet<>();
+
+        for (Map.Entry<String, Object> entry : registerLists.entrySet()) {
+            List<SalaryRegister> valueList = (List<SalaryRegister>) entry.getValue();
+            if (valueList != null) {
+                if (!valueList.isEmpty()) {
+                    SalaryRegister salaryRegister = valueList.get(0);
+                    allKeys.addAll(salaryRegister.getExtras().keySet());
+                }
+            }
+
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        for (String key : allKeys) {
+            data.put(key, new double[12]);
+        }
+
+        data.put("TOTAL",new double[12]);
+
+        int numberOfMonth = 1;
+        for (Map.Entry<String, Object> entry : registerLists.entrySet()) {
+            List<SalaryRegister> valueList = (List<SalaryRegister>) entry.getValue();
+            if (valueList != null) {
+                if (!valueList.isEmpty()) {
+                    SalaryRegister total = valueList.get(valueList.size() - 1);
+                    Map<String, Object> extras = total.getExtras();
+
+                    double[] totalsEntry = (double[]) data.get("TOTAL");
+                    totalsEntry[numberOfMonth - 1] = total.getNetPay().doubleValue();
+
+                    for (Map.Entry<String, Object> extraEntry : extras.entrySet()) {
+                        String extraKey = extraEntry.getKey();
+                        Object extraValue = extraEntry.getValue();
+
+                        if (data.containsKey(extraKey) && extraValue != null) {
+                            double[] values = (double[]) data.get(extraKey);
+                            values[numberOfMonth - 1] = ((Number) extraValue).doubleValue();
+                        }
+                    }
+                }
+            }
+            numberOfMonth++;
+        }
+
+        return data;
     }
 }

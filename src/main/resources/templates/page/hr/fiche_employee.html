@@ -16,7 +16,7 @@
                         <div class="col-md-3 text-center mb-3">
 
                             <div class="avatar-img" style="position: relative;">
-                                <span class="avatar_perso_xl"> A </span>
+                                <span class="avatar_perso_xl" th:text="${employee.initial}"></span>
                                 <img th:src="@{'/assets/avatars/face-1.jpg'}" alt="Default Avatar"
                                      class="rounded-circle border border-light shadow-sm"
                                      style="width: 130px; height: 130px;">
@@ -39,10 +39,13 @@
                                                               ${employee.status == 'Suspended' ? 'badge '+employee.status+'-color' : ''}
                                                               ${employee.status == 'Left' ? 'badge '+employee.status+'-color' : ''}|">
                                             ></span></p>
-                                    <p class="small mb-0 text-muted">Creation: <span class="small mb-0" th:text="${employee.creation}"></span>
+                                    <p class="small mb-0 text-muted">
+                                        Creation: <span th:text="${#temporals.format(employee.creation, 'dd MMMM yyyy HH:mm', T(java.util.Locale).ENGLISH)}"></span>
                                     </p>
-                                    <p class="small mb-0 text-muted">Modified: <span class="small mb-0" th:text="${employee.modified}"></span>
+                                    <p class="small mb-0 text-muted">
+                                        Modified: <span th:text="${#temporals.format(employee.modified, 'dd MMMM yyyy HH:mm', T(java.util.Locale).ENGLISH)}"></span>
                                     </p>
+
                                 </div>
 
                             </div>
@@ -128,9 +131,9 @@
                                                         ></strong>
                                                     </p>
                                                 </td>
-                                                <td th:text="${'Apr 2025'}"></td>
-                                                <td th:text="${salarySlip.gross_pay}"></td>
-                                                <td th:text="${salarySlip.net_pay}"></td>
+                                                <td th:text="${#temporals.format(salarySlip.start_date, 'MMM yyyy', localeEn)}"></td>
+                                                <td th:text="${#numbers.formatDecimal(salarySlip.gross_pay, 0, 'COMMA', 2, 'POINT')}"></td>
+                                                <td th:text="${#numbers.formatDecimal(salarySlip.net_pay, 0, 'COMMA', 2, 'POINT')}"></td>
                                                 <td> <img class="pdf-row" th:src="@{'/assets/images/pdf.png'}" alt="Default Avatar"
                                                           style="width: 30px; height: 30px; cursor:pointer"></td>
                                             </tr>
@@ -167,7 +170,8 @@
             row.addEventListener("click", function() {
                 const salarySlipName = this.dataset.salary;
                 console.log(salarySlipName);
-                window.location.href = `/print_salary_slip?salarySlipName=${salarySlipName}`;
+                // window.location.href = `/print_salary_slip?salarySlipName=${salarySlipName}`;
+                window.open(`/print_salary_slip?salarySlipName=${salarySlipName}`, '_blank');
             })
         })
     });
