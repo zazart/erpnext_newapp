@@ -110,11 +110,12 @@ public class ImportService {
 
         String[] formats = {
                 // YEAR MONTH DAY
-                "yyyy-MM-dd", "yyyy-M-d","yyyy-MM-d","yyyy-M-dd",
-                "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d","yyyy/M/dd",
+//                "yyyy-MM-dd", "yyyy-M-d","yyyy-MM-d","yyyy-M-dd",
+//                "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d","yyyy/M/dd",
                 // DAY MONTH YEAR
-                "dd-MM-yyyy", "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy",
-                "dd/MM/yyyy", "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy"
+//                "dd-MM-yyyy", "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy",
+                "dd/MM/yyyy"
+//                ,"d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy"
         };
 
         for (String format : formats) {
@@ -364,8 +365,11 @@ public class ImportService {
             return;
         }
 
-        ssa.setFromDate(validDate(tokens[0].trim(),importErrors, baseError));
-
+        LocalDate fromDate = validDate(tokens[0].trim(),importErrors, baseError);
+        if (fromDate == null || employee.getDateOfJoining() == null) {
+            return;
+        }
+        ssa.setFromDate(fromDate);
         if (ssa.getFromDate().isBefore(employee.getDateOfJoining())){
             String errorMessage = "The from_date Assignment '"+ssa.getFromDate()+"' couldn't be before Employee's date of joining ";
             newImportError(importErrors, baseError,errorMessage);

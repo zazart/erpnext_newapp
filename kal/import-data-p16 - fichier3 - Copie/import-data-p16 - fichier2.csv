@@ -1,0 +1,9 @@
+salary structure,name,Abbr,type,valeur,company
+g1,Salaire Base,SB,earning,base,Orinasa raks
+g1,Indemnité,IDM,earning,SB * 0.35,Orinasa raks
+g1,Taxe spéciale,TSP,deduction,(SB + IDM) * 0.21,Orinasa raks
+g1,Impot,IMP,deduction,(SB + IDM - TSP ) * 0.1,Orinasa raks
+g2,Salaire Base,SB,earning,base,Orinasa raks
+g2,Indemnité,IDM,earning,SB * 0.75,Orinasa raks
+g2,Taxe spéciale,TSP,deduction,(SB + IDM) * 0.21,Orinasa raks
+g2,Impot,IMP,deduction,(SB + IDM - TSP ) * 0.1,Orinasa raks

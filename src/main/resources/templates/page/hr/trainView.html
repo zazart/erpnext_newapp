@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+
+<body class="vertical light">
+<div class="wrapper">
+
+  <th:block th:replace="~{fragments/header.html}"></th:block>
+  <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h2 class="page-title">Train View</h2>
+          <p class="text-muted">paragraph.</p>
+
+          <div class="row">
+            <div class="col-md-6">
+
+<!--              <div th:if="${successMessage}" class="alert alert-success alert-dismissible mt-4" role="alert">-->
+<!--                <span th:text="${successMessage}"></span>-->
+<!--                <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                  <span aria-hidden="true">&times;</span>-->
+<!--                </button>-->
+<!--              </div>-->
+
+<!--              <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible mt-4" role="alert">-->
+<!--                <span th:text="${errorMessage}"></span>-->
+<!--                <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                  <span aria-hidden="true">&times;</span>-->
+<!--                </button>-->
+<!--              </div>-->
+
+              <div class="card shadow mb-4">
+                <div class="card-header">
+                  <strong class="card-title">Import Form</strong>
+                </div>
+                <div class="card-body">
+                  <form th:action="@{/import}" th:object="${dataImport}"  method="post" enctype="multipart/form-data">
+                    <div class="custom-file mb-3">
+                      <input type="file" class="custom-file-input" id="file1" name="file1"  required th:field="*{file1}">
+                      <label class="custom-file-label" for="file1">Choose file1 ...</label>
+                    </div>
+                    <div class="custom-file mb-3">
+                      <input type="file" class="custom-file-input" id="file2" name="file2" required th:field="*{file2}">
+                      <label class="custom-file-label" for="file2">Choose file2 ...</label>
+                    </div>
+                    <div class="custom-file mb-3">
+                      <input type="file" class="custom-file-input" id="file3" name="file3" required th:field="*{file3}">
+                      <label class="custom-file-label" for="file3">Choose file3 ...</label>
+                    </div>
+                    <button class="btn btn-dark" type="submit">Import</button>
+                  </form>
+                </div> <!-- /.card-body -->
+              </div> <!-- /.card -->
+
+            </div> <!-- /.col -->
+
+
+          </div> <!-- end section -->
+        </div> <!-- /.col-12 col-lg-10 col-xl-10 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+  </main> <!-- main -->
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+</body>
+
+
+</html>
