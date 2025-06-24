@@ -92,5 +92,7 @@ public class SalarySlip {
     private List<SalaryComponent> deductions;
     private Employee employeeObject;
 
+    private String salaryStructureAssignment;
+
 
 }

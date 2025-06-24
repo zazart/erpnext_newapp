@@ -87,7 +87,7 @@ public class SalaryStructureAssignmentService {
     }
 
 
-    public String newSalaryStructureAssignment(String sid, SalaryStructureAssignment assignment) {
+    public void newSalaryStructureAssignment(String sid, SalaryStructureAssignment assignment) {
         String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment";
 
         HttpHeaders headers = new HttpHeaders();
@@ -105,11 +105,17 @@ public class SalaryStructureAssignmentService {
             requestBody.put("base", assignment.getBase());
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            return response.getBody();
+            var response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+            Map<String, Object> body = response.getBody();
+            if (body != null && body.containsKey("data")) {
+                Map<String, Object> data = (Map<String, Object>) body.get("data");
+                setSalaryStructureAssignmentFields(data, assignment);
+            } else {
+                logger.warn("No 'data' field found in the response body.");
+            }
         } catch (Exception e) {
             logger.error("Error creating new Salary Structure Assignment");
-            throw new RuntimeException("Error creating new Salary Structure Assignment", e);
+//            throw new RuntimeException("Error creating new Salary Structure Assignment", e);
         }
     }
 
@@ -119,31 +125,35 @@ public class SalaryStructureAssignmentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         String filters = String.format("[[\"employee\",\"=\", \"%s\"], [\"from_date\", \"<=\", \"%s\"] ]", employeId, targetDate);
-        String url = UriComponentsBuilder.fromHttpUrl(erpnextApiUrl + "/api/ressource/Salary Structure Assignment")
-                .queryParam("fields", "[\"name\", \"from_date\"]")
+        String url = UriComponentsBuilder.fromHttpUrl(erpnextApiUrl + "/api/resource/Salary Structure Assignment")
+                .queryParam("fields", "[\"*\"]")
                 .queryParam("filters", filters)
                 .queryParam("limite_page_length", "1000")
                 .queryParam("order_by","from_date desc")
                 .build(false)
                 .toUriString();
+
         HttpEntity<String> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+        try {
+            var response = restTemplate.exchange(url, HttpMethod.GET, request, Map.class);
+            if (response.getBody() != null && response.getBody().containsKey("data")) {
+                List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            JsonNode root = new ObjectMapper().readTree(response.getBody());
-            JsonNode data = root.get("data");
-            if (data.isArray() && data.size() > 0) {
-                JsonNode firstMatch = data.get(0);
+                List<SalaryStructureAssignment> listSalaryStructureAssignment = new ArrayList<>();
+                for (Map<String, Object> item : data) {
+                    SalaryStructureAssignment salaryStructureAssignment = new SalaryStructureAssignment();
+                    setSalaryStructureAssignmentFields(item, salaryStructureAssignment);
 
-
-                return firstMatch.get("name").asText(null);
+                    logger.info("Mapped Salary Structure Assignment: {}", salaryStructureAssignment.getName());
+                    return salaryStructureAssignment;
+                }
             } else {
-                logger.warn("No Salary Structure Assignment found in the response body for {}", employeId);
-                return null;
+                logger.warn("No 'data' field found in the response body.");
             }
-        } else {
-            throw new RuntimeException("Error fetching Salary Structure Assignment");
+        } catch (Exception e) {
+            logger.error("Error fetching Salary Structure Assignment from ERPNext: {}", e.getMessage(), e);
         }
+        return null;
     }
 
 }

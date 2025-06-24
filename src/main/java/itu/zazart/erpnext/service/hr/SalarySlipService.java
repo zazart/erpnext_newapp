@@ -1,6 +1,7 @@
 package itu.zazart.erpnext.service.hr;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import itu.zazart.erpnext.dto.SalaryGenFormat;
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
@@ -26,13 +27,15 @@ public class SalarySlipService {
 
     private final RestTemplate restTemplate;
     private static final Logger logger = LoggerFactory.getLogger(SalarySlipService.class);
+    private final SalaryStructureAssignmentService salaryStructureAssignmentService;
 
 
     @Value("${erpnext.api.url}")
     private String erpnextApiUrl;
 
-    public SalarySlipService(RestTemplate restTemplate) {
+    public SalarySlipService(RestTemplate restTemplate, SalaryStructureAssignmentService salaryStructureAssignmentService) {
         this.restTemplate = restTemplate;
+        this.salaryStructureAssignmentService = salaryStructureAssignmentService;
     }
 
     public void setSalarySlipFields(Map<String, Object> item, SalarySlip salarySlip) {
@@ -201,6 +204,9 @@ public class SalarySlipService {
             requestBody.put("end_date", end.format(formatter));
             requestBody.put("docstatus", 1);
             requestBody.put("salary_structure", salarySlip.getSalaryStructure());
+            if ( salarySlip.getSalaryStructureAssignment() != null ){
+                requestBody.put("salary_structure_assignment", salarySlip.getSalaryStructureAssignment());
+            }
             requestBody.put("payroll_frequency", "Monthly");
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
@@ -212,21 +218,43 @@ public class SalarySlipService {
         }
     }
 
-    public void generateSalarySlips(String sid, SalaryGenFormat salaryGenFormat, SalaryStructureAssignment ssa) {
+    public void generateSalarySlips(String sid, SalaryGenFormat salaryGenFormat, boolean whithNewBase) throws Exception {
         LocalDate current = salaryGenFormat.getStartMonth();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        String targetDate = salaryGenFormat.getStartMonth().format(formatter);
+        SalaryStructureAssignment ssa = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid,salaryGenFormat.getEmployeeStr(),targetDate);
+        if (ssa == null) {
+            throw new Exception("Salary Structure Assignment not found");
+        }
+
+        SalaryStructureAssignment forAll = null;
         while (!current.isAfter(salaryGenFormat.getEndMonth())) {
             YearMonth ym = YearMonth.from(current);
             LocalDate startDate = ym.atDay(1);
             LocalDate endDate = ym.atEndOfMonth();
 
+            SalaryStructureAssignment closestSSA = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid,salaryGenFormat.getEmployeeStr(),startDate.format(formatter));
+            if (current.isEqual(closestSSA.getFromDate())){
+                current = current.plusMonths(1);
+                continue;
+            }
+            if (whithNewBase) {
+                closestSSA.setFromDate(startDate);
+                closestSSA.setBase(salaryGenFormat.getBase());
+                salaryStructureAssignmentService.newSalaryStructureAssignment(sid,closestSSA);
+            }
             try {
                 SalarySlip ss = new SalarySlip();
                 ss.setEmployee(salaryGenFormat.getEmployeeStr());
                 ss.setCompany(salaryGenFormat.getEmployee().getCompany());
                 ss.setStartDate(startDate);
                 ss.setEndDate(endDate);
-                ss.setSalaryStructure(ssa.getSalaryStructure());
+                ss.setSalaryStructure(closestSSA.getSalaryStructure());
+                if (whithNewBase) {
+                    ss.setSalaryStructureAssignment(closestSSA.getName());
+                }
                 newSalarySlip(sid, ss);
             }
             catch (Exception e) {

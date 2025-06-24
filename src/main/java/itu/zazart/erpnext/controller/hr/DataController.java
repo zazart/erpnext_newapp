@@ -5,11 +5,10 @@ import itu.zazart.erpnext.dto.ImportError;
 import itu.zazart.erpnext.dto.SalaryGenFormat;
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.model.hr.Employee;
+import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
 import itu.zazart.erpnext.service.SessionService;
-import itu.zazart.erpnext.service.hr.DataService;
-import itu.zazart.erpnext.service.hr.EmployeeService;
-import itu.zazart.erpnext.service.hr.ImportService;
-import itu.zazart.erpnext.service.hr.SalarySlipService;
+import itu.zazart.erpnext.service.Utils;
+import itu.zazart.erpnext.service.hr.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +29,15 @@ public class DataController {
     private final EmployeeService employeeService;
     private static final Logger logger = LoggerFactory.getLogger(DataController.class);
     private final SalarySlipService salarySlipService;
+    private final SalaryStructureAssignmentService salaryStructureAssignmentService;
 
-    public DataController(SessionService sessionService, DataService dataService, ImportService importService, EmployeeService employeeService, SalarySlipService salarySlipService) {
+    public DataController(SessionService sessionService, DataService dataService, ImportService importService, EmployeeService employeeService, SalarySlipService salarySlipService, SalaryStructureAssignmentService salaryStructureAssignmentService) {
         this.sessionService = sessionService;
         this.dataService = dataService;
         this.importService = importService;
         this.employeeService = employeeService;
         this.salarySlipService = salarySlipService;
+        this.salaryStructureAssignmentService = salaryStructureAssignmentService;
     }
 
     @GetMapping("/reset")
@@ -108,11 +110,14 @@ public class DataController {
 
         try {
             String employeeName = salaryGenFormat.getEmployeeStr();
-            String base =  salaryGenFormat.getBaseStr();
             salaryGenFormat.setEmployee(employeeService.getEmployeeByName(sid,employeeName));
-            salaryGenFormat.setBase(base);
-
-            salarySlipService.generateSalarySlips(sid, salaryGenFormat, null);
+            boolean withNewBase = false;
+            if (!salaryGenFormat.getBaseStr().isEmpty()){
+                String base =  salaryGenFormat.getBaseStr();
+                salaryGenFormat.setBase(base);
+                withNewBase = true;
+            }
+            salarySlipService.generateSalarySlips(sid, salaryGenFormat, withNewBase);
             model.addAttribute("successMessage", "Data successfully generated !");
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error while generating Salary !");
