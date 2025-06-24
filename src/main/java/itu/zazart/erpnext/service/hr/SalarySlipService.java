@@ -1,8 +1,8 @@
 package itu.zazart.erpnext.service.hr;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import itu.zazart.erpnext.dto.SalaryGenFormat;
+import itu.zazart.erpnext.dto.SalaryGenForm;
+import itu.zazart.erpnext.dto.SalaryUpdateForm;
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
 import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
@@ -10,14 +10,12 @@ import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -162,8 +160,8 @@ public class SalarySlipService {
         return new ArrayList<>();
     }
 
-    public SalarySlip  getSalarySlipByName(String sid,String name){
-        String url = erpnextApiUrl + "/api/resource/Salary Slip/"+name;
+    public void getSalarySlipByName(String sid,SalarySlip salarySlip){
+        String url = erpnextApiUrl + "/api/resource/Salary Slip/"+salarySlip.getName();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -171,17 +169,14 @@ public class SalarySlipService {
             var response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
             if (response.getBody() != null && response.getBody().containsKey("data")) {
                 Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
-                SalarySlip salarySlip = new SalarySlip();
                 setSalarySlipFields(data, salarySlip);
                 setComponents(data, salarySlip);
-                return salarySlip;
             } else {
                 logger.warn("No 'data' field found in the response body.");
             }
         } catch (Exception e) {
             logger.error("Error fetching Salary Slip from ERPNext: {}", e.getMessage(), e);
         }
-        return null;
     }
 
 
@@ -218,37 +213,37 @@ public class SalarySlipService {
         }
     }
 
-    public void generateSalarySlips(String sid, SalaryGenFormat salaryGenFormat, boolean whithNewBase) throws Exception {
-        LocalDate current = salaryGenFormat.getStartMonth();
+    public void generateSalarySlips(String sid, SalaryGenForm salaryGenForm, boolean whithNewBase) throws Exception {
+        LocalDate current = salaryGenForm.getStartMonth();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        String targetDate = salaryGenFormat.getStartMonth().format(formatter);
-        SalaryStructureAssignment ssa = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid,salaryGenFormat.getEmployeeStr(),targetDate);
+        String targetDate = salaryGenForm.getStartMonth().format(formatter);
+        SalaryStructureAssignment ssa = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid, salaryGenForm.getEmployeeStr(),targetDate);
         if (ssa == null) {
             throw new Exception("Salary Structure Assignment not found");
         }
 
         SalaryStructureAssignment forAll = null;
-        while (!current.isAfter(salaryGenFormat.getEndMonth())) {
+        while (!current.isAfter(salaryGenForm.getEndMonth())) {
             YearMonth ym = YearMonth.from(current);
             LocalDate startDate = ym.atDay(1);
             LocalDate endDate = ym.atEndOfMonth();
 
-            SalaryStructureAssignment closestSSA = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid,salaryGenFormat.getEmployeeStr(),startDate.format(formatter));
+            SalaryStructureAssignment closestSSA = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid, salaryGenForm.getEmployeeStr(),startDate.format(formatter));
             if (current.isEqual(closestSSA.getFromDate())){
                 current = current.plusMonths(1);
                 continue;
             }
             if (whithNewBase) {
                 closestSSA.setFromDate(startDate);
-                closestSSA.setBase(salaryGenFormat.getBase());
+                closestSSA.setBase(salaryGenForm.getBase());
                 salaryStructureAssignmentService.newSalaryStructureAssignment(sid,closestSSA);
             }
             try {
                 SalarySlip ss = new SalarySlip();
-                ss.setEmployee(salaryGenFormat.getEmployeeStr());
-                ss.setCompany(salaryGenFormat.getEmployee().getCompany());
+                ss.setEmployee(salaryGenForm.getEmployeeStr());
+                ss.setCompany(salaryGenForm.getEmployee().getCompany());
                 ss.setStartDate(startDate);
                 ss.setEndDate(endDate);
                 ss.setSalaryStructure(closestSSA.getSalaryStructure());
@@ -266,5 +261,70 @@ public class SalarySlipService {
             }
             current = current.plusMonths(1);
         }
+    }
+
+
+    public void fetchComponentsOnSalarySlipList(String sid, List<SalarySlip> salarySlipList) {
+        for (SalarySlip ss : salarySlipList) {
+            getSalarySlipByName(sid,ss);
+        }
+    }
+
+    public List<SalarySlip> getSalarySlips(String sid) {
+        String url = erpnextApiUrl + "/api/resource/Salary Slip?limit_page_length=1000&fields=[\"*\"]";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", "sid=" + sid);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            var response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            if (response.getBody() != null && response.getBody().containsKey("data")) {
+                List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+
+                List<SalarySlip> listSalarySlip = new ArrayList<>();
+                for (Map<String, Object> item : data) {
+                    SalarySlip salarySlip = new SalarySlip();
+                    setSalarySlipFields(item, salarySlip);
+                    listSalarySlip.add(salarySlip);
+                    logger.info("Mapped SalarySlip: {}", salarySlip.getName());
+                }
+                return listSalarySlip;
+            } else {
+                logger.warn("No 'data' field found in the response body.");
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching Employee from ERPNext: {}", e.getMessage(), e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<SalarySlip> getFullSalarySlips(String sid) {
+        List<SalarySlip> salarySlipList = getSalarySlips(sid);
+        fetchComponentsOnSalarySlipList(sid,salarySlipList);
+        return salarySlipList;
+    }
+
+    public List<SalarySlip> getSalaryFiltered(String sid, SalaryUpdateForm salaryUpdateForm, List<SalarySlip> salarySlipList) {
+        List<SalarySlip> salarySlipListFiltered = new ArrayList<>();
+        String componentName = salaryUpdateForm.getSalaryComponentStr();
+        BigDecimal componentMin = salaryUpdateForm.getComponentMin();
+        BigDecimal componentMax = salaryUpdateForm.getComponentMax();
+        for(SalarySlip  item : salarySlipList) {
+            for(SalaryComponent earning : item.getEarnings()) {
+                if (earning.getName().equals(componentName)
+                    && earning.getAmount().compareTo(componentMin) >= 0
+                    && earning.getAmount().compareTo(componentMax) <= 0) {
+                    salarySlipListFiltered.add(item);
+                }
+            }
+
+            for(SalaryComponent deduction : item.getDeductions()) {
+                if (deduction.getName().equals(componentName)
+                        && deduction.getAmount().compareTo(componentMin) >= 0
+                        && deduction.getAmount().compareTo(componentMax) <= 0) {
+                    salarySlipListFiltered.add(item);
+                }
+            }
+        }
+        return salarySlipListFiltered;
     }
 }

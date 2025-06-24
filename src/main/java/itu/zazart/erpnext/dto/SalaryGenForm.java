@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SalaryGenFormat {
+public class SalaryGenForm {
     private String baseStr;
     private String startMonthStr;
     private String endMonthStr;

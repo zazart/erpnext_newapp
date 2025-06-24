@@ -2,6 +2,7 @@ package itu.zazart.erpnext;
 
 import itu.zazart.erpnext.model.hr.Company;
 import itu.zazart.erpnext.model.hr.Employee;
+import itu.zazart.erpnext.model.hr.SalarySlip;
 import itu.zazart.erpnext.service.Utils;
 import itu.zazart.erpnext.service.hr.CompanyService;
 import itu.zazart.erpnext.service.hr.EmployeeService;
@@ -102,7 +103,9 @@ class ErpnextApplicationTests {
 	@Test
 	void getSalarySlipByName(){
 		String name = "Sal Slip/HR-EMP-00014/00001";
-		salarySlipService.getSalarySlipByName(testSid, name);
+		SalarySlip salarySlip = new SalarySlip();
+		salarySlip.setName(name);
+		salarySlipService.getSalarySlipByName(testSid, salarySlip);
 	}
 
 
