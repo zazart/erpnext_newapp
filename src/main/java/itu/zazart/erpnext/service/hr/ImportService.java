@@ -110,11 +110,12 @@ public class ImportService {
 
         String[] formats = {
                 // YEAR MONTH DAY
-                "yyyy-MM-dd", "yyyy-M-d","yyyy-MM-d","yyyy-M-dd",
-                "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d","yyyy/M/dd",
+//                "yyyy-MM-dd", "yyyy-M-d","yyyy-MM-d","yyyy-M-dd",
+//                "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d","yyyy/M/dd",
                 // DAY MONTH YEAR
-                "dd-MM-yyyy", "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy",
-                "dd/MM/yyyy", "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy"
+//                "dd-MM-yyyy", "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy",
+                "dd/MM/yyyy"
+//                ,"d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy"
         };
 
         for (String format : formats) {

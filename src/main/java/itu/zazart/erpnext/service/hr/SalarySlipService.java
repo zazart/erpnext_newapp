@@ -1,18 +1,23 @@
 package itu.zazart.erpnext.service.hr;
 
 
+import itu.zazart.erpnext.dto.SalaryGenFormat;
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
+import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
 import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -204,6 +209,34 @@ public class SalarySlipService {
         } catch (Exception e) {
             logger.error("Error creating new Salary Slip");
             throw new RuntimeException("Error creating new Salary Slip", e);
+        }
+    }
+
+    public void generateSalarySlips(String sid, SalaryGenFormat salaryGenFormat, SalaryStructureAssignment ssa) {
+        LocalDate current = salaryGenFormat.getStartMonth();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        while (!current.isAfter(salaryGenFormat.getEndMonth())) {
+            YearMonth ym = YearMonth.from(current);
+            LocalDate startDate = ym.atDay(1);
+            LocalDate endDate = ym.atEndOfMonth();
+
+            try {
+                SalarySlip ss = new SalarySlip();
+                ss.setEmployee(salaryGenFormat.getEmployeeStr());
+                ss.setCompany(salaryGenFormat.getEmployee().getCompany());
+                ss.setStartDate(startDate);
+                ss.setEndDate(endDate);
+                ss.setSalaryStructure(ssa.getSalaryStructure());
+                newSalarySlip(sid, ss);
+            }
+            catch (Exception e) {
+                if (e.getMessage().contains("already exists") || e.getMessage().contains("Duplicate")) {
+                    logger.warn("Salary Slip already exists.");
+                } else {
+                    logger.warn("Error fetching Salary Slip from ERPNext: {}", e.getMessage(), e);
+                }
+            }
+            current = current.plusMonths(1);
         }
     }
 }
