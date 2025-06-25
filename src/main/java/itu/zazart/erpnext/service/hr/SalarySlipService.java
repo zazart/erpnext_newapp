@@ -3,6 +3,7 @@ package itu.zazart.erpnext.service.hr;
 
 import itu.zazart.erpnext.dto.SalaryGenForm;
 import itu.zazart.erpnext.dto.SalaryUpdateForm;
+import itu.zazart.erpnext.model.hr.Employee;
 import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.model.hr.SalarySlip;
 import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
@@ -226,9 +227,27 @@ public class SalarySlipService {
         }
     }
 
+    public BigDecimal getAverageOfAllSalarySlip(String sid){
+        List<SalarySlip> salarySlips = getSalarySlips(sid);
+        BigDecimal total = BigDecimal.ZERO;
+        for (SalarySlip salarySlip : salarySlips) {
+            total = total.add(salarySlip.getNetPay());
+        }
+        BigDecimal size = BigDecimal.valueOf(salarySlips.size());
+        double sizeDouble = size.doubleValue();
+        double totalDouble = total.doubleValue();
+        double average = totalDouble/sizeDouble;
+
+        return BigDecimal.valueOf(average);
+    }
+
     public void generateSalarySlips(String sid, SalaryGenForm salaryGenForm, boolean whithNewBase) throws Exception {
         LocalDate current = salaryGenForm.getStartMonth();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        if (salaryGenForm.getIsAverage().equals("on")) {
+            salaryGenForm.setBase(getAverageOfAllSalarySlip(sid));
+            whithNewBase = true;
+        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
         String targetDate = salaryGenForm.getStartMonth().format(formatter);
@@ -236,8 +255,7 @@ public class SalarySlipService {
         if (ssa == null) {
             throw new Exception("Salary Structure Assignment not found");
         }
-
-        SalaryStructureAssignment forAll = null;
+        
         while (!current.isAfter(salaryGenForm.getEndMonth())) {
             YearMonth ym = YearMonth.from(current);
             LocalDate startDate = ym.atDay(1);
@@ -245,6 +263,29 @@ public class SalarySlipService {
 
             SalaryStructureAssignment closestSSA = salaryStructureAssignmentService.getClosestSalaryAssignementId(sid, salaryGenForm.getEmployeeStr(),startDate.format(formatter));
             if (current.isEqual(closestSSA.getFromDate())){
+                if (salaryGenForm.getEcraser().equals("on")) {
+                    List<SalarySlip> salarySlipsList = getSalarySlipsByEmployee(sid,salaryGenForm.getEmployeeStr());
+                    SalarySlip toCancelled = null;
+                    for (SalarySlip salarySlip: salarySlipsList) {
+                        if (salarySlip.getStartDate().getMonthValue() == current.getMonthValue()){
+                            toCancelled = salarySlip;
+                            break;
+                        }
+                    }
+                    if (toCancelled == null) {
+                        toCancelled = new SalarySlip();
+                        toCancelled.setEmployee(closestSSA.getEmployee());
+                        toCancelled.setCompany(closestSSA.getCompany());
+                        toCancelled.setSalaryStructure(closestSSA.getSalaryStructure());
+                        toCancelled.setStartDate(closestSSA.getFromDate());
+                    }
+                    salaryStructureAssignmentService.cancelSalaryStructureAssignment(sid, closestSSA);
+                    closestSSA.setBase(salaryGenForm.getBase());
+                    salaryStructureAssignmentService.newSalaryStructureAssignment(sid, closestSSA);
+                    cancelSalarySlip(sid,toCancelled);
+                    toCancelled.setSalaryStructureAssignment(closestSSA.getName());
+                    newSalarySlip(sid, toCancelled);
+                }
                 current = current.plusMonths(1);
                 continue;
             }

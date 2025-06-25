@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +25,7 @@ class ErpnextApplicationTests {
 	private final CompanyService companyService;
 	private final EmployeeService employeeService;
 	private final SalarySlipService salarySlipService;
-	private final String testSid = "2aa682df2dec52345a6e3f1cd651b7f5738ed7b4c813d0d26279b458";
+	private final String testSid = "74a6e9cadf0b57fe68b14a42fecd47d8479c63b8f32e4ec0a5052c44";
 
 	@Autowired
     ErpnextApplicationTests(CompanyService companyService, EmployeeService employeeService, SalarySlipService salarySlipService) {
@@ -114,6 +115,11 @@ class ErpnextApplicationTests {
 		salarySlipService.getAllSalarySlipBySQL(null);
 	}
 
+	@Test
+	void testAverage() {
+		BigDecimal value = salarySlipService.getAverageOfAllSalarySlip(testSid);
+		System.out.println(value);
 
+	}
 
 }

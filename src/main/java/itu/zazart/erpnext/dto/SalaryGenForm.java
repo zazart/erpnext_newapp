@@ -27,6 +27,10 @@ public class SalaryGenForm {
     private String employeeStr;
     private Employee employee;
 
+    private String ecraser;
+    private String isAverage;
+
+
     public void setStartMonthStr(String startMonthStr) {
         DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
         this.startMonth = YearMonth.parse(startMonthStr, monthFormatter).atDay(1);
@@ -45,5 +49,8 @@ public class SalaryGenForm {
         } catch (NumberFormatException e) {
             this.base = BigDecimal.ZERO;
         }
+    }
+    public void setBase(BigDecimal bigDecimal){
+        this.base = bigDecimal;
     }
 }

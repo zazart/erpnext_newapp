@@ -11,9 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +94,10 @@ public class DataController {
         return "page/hr/generate_salary";
     }
 
-    @PostMapping("/generate_salary")
-    public String generateSalary(@ModelAttribute("salaryGenForm") SalaryGenForm salaryGenForm, Model model){
+    @RequestMapping(value = "/generate_salary" , method = RequestMethod. POST)
+    public String generateSalary(@ModelAttribute("salaryGenForm") SalaryGenForm salaryGenForm, Model model,
+                                 @RequestParam(value = "isAverage", required = false) String isAverage,
+                                 @RequestParam(value = "ecraser", required = false) String ecraser) {
         if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }

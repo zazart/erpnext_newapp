@@ -59,6 +59,14 @@
                                             <label for="base">Base :</label>
                                             <input id="base" name="base" step="0.50" type="number" class="form-control" th:field="*{baseStr}">
                                         </div>
+                                        <div class="col-lg-12 col-md-12 mb-3">
+                                            <label for="ecraser">Ecraser salaire :</label>
+                                            <input id="ecraser" name="ecraser" type="checkbox" class="form-control">
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 mb-3">
+                                            <label for="isAverage">Utiliser moyenne total SB :</label>
+                                            <input id="isAverage" name="isAverage" type="checkbox" class="form-control" >
+                                        </div>
                                         <button class="btn btn-dark" type="submit">Generate</button>
                                     </form>
                                 </div> <!-- /.card-body -->
