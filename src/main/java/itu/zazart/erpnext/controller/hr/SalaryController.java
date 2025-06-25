@@ -105,10 +105,8 @@ public class SalaryController {
         String sid = sessionService.getErpSid();
 
         try {
-            salaryUpdateForm.parseBigDecimals();
-            List<SalarySlip> salarySlips = salarySlipService.getFullSalarySlips(sid);
-            List<SalarySlip> salarySlipListFiltered = salarySlipService.getSalaryFiltered(sid,salaryUpdateForm,salarySlips);
-            model.addAttribute("successMessage", "Data successfully generated !");
+            salarySlipService.updateSalary(sid,salaryUpdateForm );
+            model.addAttribute("successMessage", "Data successfully updated !");
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error while updating Salary !");
             logger.error("Error while updating Salary ", e);

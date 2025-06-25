@@ -20,14 +20,16 @@ import java.util.*;
 @Service
 public class SalaryStructureAssignmentService {
     private final RestTemplate restTemplate;
+    private final DataService dataService;
     private static final Logger logger = LoggerFactory.getLogger(SalaryStructureAssignmentService.class);
 
 
     @Value("${erpnext.api.url}")
     private String erpnextApiUrl;
 
-    public SalaryStructureAssignmentService(RestTemplate restTemplate) {
+    public SalaryStructureAssignmentService(RestTemplate restTemplate, DataService dataService) {
         this.restTemplate = restTemplate;
+        this.dataService = dataService;
     }
 
     public void setSalaryStructureAssignmentFields (Map<String, Object> ssa, SalaryStructureAssignment salaryStructureAssignment) {
@@ -59,7 +61,10 @@ public class SalaryStructureAssignmentService {
     }
 
     public List<SalaryStructureAssignment> getAllSalaryStructureAssignment(String sid) {
-        String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment?limit_page_length=1000&fields=[\"*\"]";
+        String url = erpnextApiUrl + "/api/resource/Salary Structure Assignment"
+                + "?limit_page_length=1000"
+                + "&fields=[\"*\"]"
+                + "&filters=[[\"docstatus\", \"=\", 1]]";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
@@ -119,12 +124,12 @@ public class SalaryStructureAssignmentService {
         }
     }
 
-    public SalaryStructureAssignment getClosestSalaryAssignementId(String sid, String employeId, String targetDate) throws JsonProcessingException {
+    public SalaryStructureAssignment getClosestSalaryAssignementId(String sid, String employeName, String targetDate) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", "sid=" + sid);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String filters = String.format("[[\"employee\",\"=\", \"%s\"], [\"from_date\", \"<=\", \"%s\"] ]", employeId, targetDate);
+        String filters = String.format("[[\"employee\",\"=\", \"%s\"], [\"from_date\", \"<=\", \"%s\"], [\"docstatus\", \"=\", 1]]", employeName, targetDate);
         String url = UriComponentsBuilder.fromHttpUrl(erpnextApiUrl + "/api/resource/Salary Structure Assignment")
                 .queryParam("fields", "[\"*\"]")
                 .queryParam("filters", filters)
@@ -156,4 +161,7 @@ public class SalaryStructureAssignmentService {
         return null;
     }
 
+    public void cancelSalaryStructureAssignment(String sid, SalaryStructureAssignment ssa) {
+        dataService.cancelDocument(sid, "Salary Structure Assignment", ssa.getName());
+    }
 }

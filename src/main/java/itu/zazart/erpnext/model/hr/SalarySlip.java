@@ -94,6 +94,7 @@ public class SalarySlip {
     private Employee employeeObject;
 
     private String salaryStructureAssignment;
+    private SalaryStructureAssignment salaryStructureAssignmentObject;
 
 
 }

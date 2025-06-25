@@ -1,0 +1,77 @@
+public void updateEmployeeName(Connection connection, String name, String newEmployeeName) throws SQLException {
+    boolean check = false;
+    try {
+        if (connection == null) {
+            connection = dataSource.getConnection();
+            check = true;
+        }
+        String sql = "UPDATE `tabSalary Slip` SET employee_name = ? WHERE name = ?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setString(1, newEmployeeName);
+        stmt.setString(2, name);
+        stmt.executeUpdate();
+    } finally {
+        if (check) connection.close();
+    }
+}
+
+
+public void deleteSalarySlip(Connection connection, String name) throws SQLException {
+    boolean check = false;
+    try {
+        if (connection == null) {
+            connection = dataSource.getConnection();
+            check = true;
+        }
+        String sql = "DELETE FROM `tabSalary Slip` WHERE name = ?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setString(1, name);
+        stmt.executeUpdate();
+    } finally {
+        if (check) connection.close();
+    }
+}
+
+
+public void insertSalarySlip(Connection connection, SalarySlip slip) throws SQLException {
+    boolean check = false;
+    try {
+        if (connection == null) {
+            connection = dataSource.getConnection();
+            check = true;
+        }
+        String sql = "INSERT INTO `tabSalary Slip` (name, employee, employee_name) VALUES (?, ?, ?)";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setString(1, slip.getName());
+        stmt.setString(2, slip.getEmployee());
+        stmt.setString(3, slip.getEmployeeName());
+        stmt.executeUpdate();
+    } finally {
+        if (check) connection.close();
+    }
+}
+
+
+public SalarySlip getSalarySlipByName(Connection connection, String name) throws SQLException {
+    SalarySlip salarySlip = null;
+    boolean check = false;
+    try {
+        if (connection == null) {
+            connection = dataSource.getConnection();
+            check = true;
+        }
+        String sql = "SELECT * FROM `tabSalary Slip` WHERE name = ?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setString(1, name);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            salarySlip = new SalarySlip();
+            salarySlip.setName(rs.getString("name"));
+            salarySlip.setEmployee(rs.getString("employee"));
+            salarySlip.setEmployeeName(rs.getString("employee_name"));
+        }
+    } finally {
+        if (check) connection.close();
+    }
+    return salarySlip;
+}

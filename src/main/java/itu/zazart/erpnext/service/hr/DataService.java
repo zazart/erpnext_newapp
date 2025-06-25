@@ -41,4 +41,20 @@ public class DataService {
         }
     }
 
+    public void cancelDocument(String sid, String doctype, String name) {
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("doctype", doctype);
+            requestBody.put("name", name);
+            String baseUrl = erpnextApiUrl + "/api/method/frappe.client.cancel";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Cookie", "sid=" + sid);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(baseUrl, HttpMethod.POST, entity, String.class);
+        } catch (Exception e) {
+            logger.error("Error while canceling {} {}", doctype,name,e);
+            throw new RuntimeException("Error while canceling "+doctype+" "+name, e);
+        }
+    }
+
 }
