@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -153,13 +154,20 @@ public class SalaryRegisterService {
             body.put("report_name", "Salary Register");
 
             Map<String, String> filters = new HashMap<>();
-            if (search.getStartDate() != null) {
-                filters.put("from_date", search.getStartDate().toString());
-            }
-            if (search.getEndDate() != null) {
-                filters.put("to_date", search.getEndDate().toString());
-            }
+            LocalDate now = LocalDate.now();
+
+            LocalDate defaultStartDate = now.minusYears(300); // 300 ans en arrière
+            LocalDate defaultEndDate = now.plusYears(300);    // 300 ans dans le futur
+
+            LocalDate startDate = search.getStartDate() != null ? search.getStartDate() : defaultStartDate;
+            LocalDate endDate = search.getEndDate() != null ? search.getEndDate() : defaultEndDate;
+
+            filters.put("from_date", startDate.toString());
+            filters.put("to_date", endDate.toString());
+
+
             filters.put("company", "");
+            filters.put("docstatus", "Submitted");
             body.put("filters", filters);
 
             HttpHeaders headers = new HttpHeaders();

@@ -2,12 +2,10 @@ package itu.zazart.erpnext.controller.hr;
 
 import itu.zazart.erpnext.dto.DataImport;
 import itu.zazart.erpnext.dto.ImportError;
-import itu.zazart.erpnext.dto.SalaryGenFormat;
+import itu.zazart.erpnext.dto.SalaryGenForm;
 import itu.zazart.erpnext.model.User;
 import itu.zazart.erpnext.model.hr.Employee;
-import itu.zazart.erpnext.model.hr.SalaryStructureAssignment;
 import itu.zazart.erpnext.service.SessionService;
-import itu.zazart.erpnext.service.Utils;
 import itu.zazart.erpnext.service.hr.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,12 +92,12 @@ public class DataController {
         List<Employee> employeeList = employeeService.getAllEmployee(sid);
         model.addAttribute("user", user);
         model.addAttribute("employeeList", employeeList);
-        model.addAttribute("salaryGenFormat", new SalaryGenFormat());
+        model.addAttribute("salaryGenForm", new SalaryGenForm());
         return "page/hr/generate_salary";
     }
 
     @PostMapping("/generate_salary")
-    public String generateSalary(@ModelAttribute("salaryGenFormat") SalaryGenFormat salaryGenFormat,Model model){
+    public String generateSalary(@ModelAttribute("salaryGenForm") SalaryGenForm salaryGenForm, Model model){
         if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
@@ -109,15 +106,15 @@ public class DataController {
         String sid = sessionService.getErpSid();
 
         try {
-            String employeeName = salaryGenFormat.getEmployeeStr();
-            salaryGenFormat.setEmployee(employeeService.getEmployeeByName(sid,employeeName));
+            String employeeName = salaryGenForm.getEmployeeStr();
+            salaryGenForm.setEmployee(employeeService.getEmployeeByName(sid,employeeName));
             boolean withNewBase = false;
-            if (!salaryGenFormat.getBaseStr().isEmpty()){
-                String base =  salaryGenFormat.getBaseStr();
-                salaryGenFormat.setBase(base);
+            if (!salaryGenForm.getBaseStr().isEmpty()){
+                String base =  salaryGenForm.getBaseStr();
+                salaryGenForm.setBase(base);
                 withNewBase = true;
             }
-            salarySlipService.generateSalarySlips(sid, salaryGenFormat, withNewBase);
+            salarySlipService.generateSalarySlips(sid, salaryGenForm, withNewBase);
             model.addAttribute("successMessage", "Data successfully generated !");
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error while generating Salary !");
