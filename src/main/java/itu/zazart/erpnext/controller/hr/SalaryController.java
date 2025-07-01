@@ -104,6 +104,7 @@ public class SalaryController {
         model.addAttribute("user", user);
         String sid = sessionService.getErpSid();
 
+
         try {
             salarySlipService.updateSalary(sid,salaryUpdateForm );
             model.addAttribute("successMessage", "Data successfully updated !");

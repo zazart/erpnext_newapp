@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import itu.zazart.erpnext.dto.RegisterSearch;
 import itu.zazart.erpnext.dto.SalaryRegister;
+import itu.zazart.erpnext.dto.SalarySearchForm;
 import itu.zazart.erpnext.service.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,5 +262,37 @@ public class SalaryRegisterService {
         }
 
         return data;
+    }
+
+    public List<SalaryRegister> filtreSalaryRegister(SalarySearchForm salarySearchForm, List<SalaryRegister> salaryRegisters) {
+        List<SalaryRegister> filtered = new  ArrayList<>();
+        BigDecimal amount = salarySearchForm.getAmount();
+        SalaryRegister totalEnd = salaryRegisters.get(salaryRegisters.size()-1);
+        for (SalaryRegister salaryRegister : salaryRegisters) {
+            String key = Utils.WordsToSnakeCase(salarySearchForm.getSalaryComponentStr());
+            BigDecimal value = (BigDecimal) salaryRegister.getExtras().get(key);
+            if (salarySearchForm.getSigne().equals("<")){
+                if (value.compareTo(amount) < 0) {
+                    filtered.add(salaryRegister);
+                }
+            }
+            if (salarySearchForm.getSigne().equals(">")){
+                if (value.compareTo(amount) > 0) {
+                    filtered.add(salaryRegister);
+                }
+            }
+            if (salarySearchForm.getSigne().equals("<=")){
+                if (value.compareTo(amount) <= 0) {
+                    filtered.add(salaryRegister);
+                }
+            }
+            if (salarySearchForm.getSigne().equals("<=")){
+                if (value.compareTo(amount) <= 0) {
+                    filtered.add(salaryRegister);
+                }
+            }
+        }
+        filtered.add(totalEnd);
+        return filtered;
     }
 }

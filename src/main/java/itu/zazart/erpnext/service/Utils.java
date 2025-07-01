@@ -130,6 +130,31 @@ public class Utils {
         return result.toString().trim();
     }
 
+
+    public static String WordsToSnakeCase(String words) {
+        if (words == null || words.isEmpty()) {
+            return words;
+        }
+        String[] parts = words.split(" ");
+        StringBuilder result = new StringBuilder();
+        int test = 0;
+        for (String part : parts) {
+            test ++;
+            if (part.isEmpty()) continue;
+            result.append(part.substring(0, 1).toUpperCase());
+            if (part.length() > 1) {
+                result.append(part.substring(1).toLowerCase());
+            }
+
+            if (test == parts.length) {
+                break;
+            }
+            result.append("_");
+        }
+
+        return result.toString().trim().toLowerCase();
+    }
+
     public static LocalDate getLastDateOfMonth(int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         return yearMonth.atEndOfMonth();

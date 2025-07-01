@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<th:block th:replace="~{fragments/head.html}"></th:block>
+<body class="vertical light">
+<div class="wrapper">
+
+    <th:block th:replace="~{fragments/header.html}"></th:block>
+    <th:block th:replace="~{fragments/sidebar.html}"></th:block>
+
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <h2 class="mb-2 page-title">Search Salaire</h2>
+                    <p class="card-text">
+                        List of Salary Registers with dynamic search filters.
+                    </p>
+                    <div class="row my-4">
+                        <!-- Small table -->
+                        <div class="col-md-12">
+                            <div class="modal-body">
+                                <form id="searchForm" th:action="@{/search_salary}" method="get"  th:object="${SalarySearchForm}">
+                                    <div class="form-row">
+                                        <!-- Dates -->
+                                        <div class="col-lg-12 col-md-12 mb-3">
+                                            <label for="salaryComponentStr">Salary Component :</label>
+                                            <select id="salaryComponentStr" name="salaryComponentStr" class="form-control" >
+                                                <th:block th:each="salaryComponent : ${salaryComponentList}">
+                                                    <option th:value="${salaryComponent.name}" th:text="${salaryComponent.salaryComponent}" ></option>
+                                                </th:block>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 mb-3">
+                                            <label for="signe">Signe :</label>
+                                            <select id="signe" name="signe" class="form-control" required >
+                                                <option value="<"> < </option>
+                                                <option value=">"> > </option>
+                                                <option value=">="> >= </option>
+                                                <option value="<="> <= </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 mb-3">
+                                            <label for="amountStr">Amount :</label>
+                                            <input id="amountStr" name="amountStr" step="0.50" type="number" class="form-control" >
+                                        </div>
+                                        <div class="col-lg-4 col-md-12 mb-3">
+                                            <input type="submit" class="btn btn-black" value="Search">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="toolbar row mb-3">
+                                        <div class="col">
+                                            <form class="form-inline">
+                                                <div class="form-row">
+                                                    <div class="form-group col-auto">
+                                                        <h5 class="card-title">List of Salary Registers</h5>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col ml-auto">
+                                            <div class="dropdown float-right">
+                                                <button class="btn btn-secondary  float-right ml-3" type="button"  data-toggle="modal" data-target="#varyModal" data-whatever="@mdo"><span class="fe fe-24 fe-filter myIco mr-2"></span> Search Filters</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- table -->
+                                    <table class="table datatables" id="searchregister">
+                                        <thead>
+                                        <tr>
+                                            <th>Salary Slip ID</th>
+                                            <th>Employee</th>
+                                            <th>Employee Name</th>
+                                            <th>Date of joining</th>
+                                            <th>Company</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <!--            <th>Leave Without Pay</th>-->
+                                            <!--            <th>Absent Days</th>-->
+                                            <!--            <th>Payment Days</th>-->
+                                            <!--            <th>Currency</th>-->
+                                            <!--            <th>Loan Repayment</th>-->
+                                            <th:block th:each="columnName, iterStat : ${columnNames}">
+                                                <th th:text="${columnName}"></th>
+                                            </th:block>
+                                            <th>Gross Pay</th>
+                                            <th>Total Deduction</th>
+                                            <th>Net Pay</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <th:block th:each="register, iterStat : ${registerList}">
+                                            <tr class="doctype-row" th:if="${!iterStat.last}">
+                                                <td th:text="${register.salarySlipId}"></td>
+                                                <td th:text="${register.employee}"></td>
+                                                <td th:text="${register.employeeName}"></td>
+                                                <td th:text="${register.dateOfJoining}"></td>
+                                                <td th:text="${register.company}"></td>
+                                                <td th:text="${register.startDate}"></td>
+                                                <td th:text="${register.endDate}"></td>
+
+                                                <th:block th:each="entry : ${register.extras}">
+                                                    <th class="droite" th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 2, 'POINT')}"></th>
+                                                </th:block>
+
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.grossPay, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.totalDeduction, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+                                                <td class="droite" th:text="${register != null ? #numbers.formatDecimal(register.netPay, 0, 'COMMA', 2, 'POINT') : '0.00'}"></td>
+
+                                            </tr>
+                                        </th:block>
+
+                                        </tbody>
+
+                                        <tfoot>
+                                        <tr>
+                                            <th colspan="7" style="text-align: right;">Total</th>
+
+                                            <th:block th:if="${totalRegister != null}">
+                                                <th:block th:each="entry : ${totalRegister.extras}">
+                                                    <th class="droite" style="text-align: right;" th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 2, 'POINT')}"></th>
+                                                </th:block>
+                                            </th:block>
+
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.grossPay, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.totalDeduction, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
+                                            <th class="droite" th:text="${totalRegister != null ? #numbers.formatDecimal(totalRegister.netPay, 0, 'COMMA', 2, 'POINT') : '0.00'}">0.00</th>
+
+                                        </tr>
+                                        </tfoot>
+
+                                    </table>
+
+
+                                </div>
+                            </div>
+                        </div> <!-- simple table -->
+                    </div> <!-- end section -->
+                </div> <!-- .col-12 -->
+            </div>
+        </div>
+    </main>
+
+
+
+<!--    <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel">-->
+<!--        <div class="modal-dialog" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="varyModalLabel">Search Filters</h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                    <button type="submit" form="searchForm" class="btn mb-2 btn-dark">Apply Filters</button>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--        </div>-->
+<!--    </div>-->
+
+
+
+</div>
+<th:block th:replace="~{fragments/script.html}"></th:block>
+<script th:src="@{js/jquery.dataTables.min.js}"></script>
+<script th:src="@{js/dataTables.bootstrap4.min.js}"></script>
+<script>
+    $('#searchregister').DataTable(
+        {
+            autoWidth: true,
+            scrollX: true,
+            scrollCollapse: true,
+            "lengthMenu": [
+                [20, 100, 500, -1],
+                [20, 100, 500, "All"]
+            ]
+        });
+
+</script>
+
+
+</body>
+
+</html>

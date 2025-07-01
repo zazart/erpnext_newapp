@@ -244,10 +244,13 @@ public class SalarySlipService {
     public void generateSalarySlips(String sid, SalaryGenForm salaryGenForm, boolean whithNewBase) throws Exception {
         LocalDate current = salaryGenForm.getStartMonth();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        if (salaryGenForm.getIsAverage().equals("on")) {
-            salaryGenForm.setBase(getAverageOfAllSalarySlip(sid));
-            whithNewBase = true;
+        if (salaryGenForm.getIsAverage()!=null){
+            if (salaryGenForm.getIsAverage().equals("on")) {
+                salaryGenForm.setBase(getAverageOfAllSalarySlip(sid));
+                whithNewBase = true;
+            }
         }
+
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
         String targetDate = salaryGenForm.getStartMonth().format(formatter);
@@ -255,7 +258,7 @@ public class SalarySlipService {
         if (ssa == null) {
             throw new Exception("Salary Structure Assignment not found");
         }
-        
+
         while (!current.isAfter(salaryGenForm.getEndMonth())) {
             YearMonth ym = YearMonth.from(current);
             LocalDate startDate = ym.atDay(1);

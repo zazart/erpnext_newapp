@@ -2,8 +2,11 @@ package itu.zazart.erpnext.controller.hr;
 
 import itu.zazart.erpnext.dto.RegisterSearch;
 import itu.zazart.erpnext.dto.SalaryRegister;
+import itu.zazart.erpnext.dto.SalarySearchForm;
 import itu.zazart.erpnext.model.User;
+import itu.zazart.erpnext.model.hr.SalaryComponent;
 import itu.zazart.erpnext.service.SessionService;
+import itu.zazart.erpnext.service.hr.SalaryComponentService;
 import itu.zazart.erpnext.service.hr.SalaryRegisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +25,14 @@ import itu.zazart.erpnext.service.Utils;
 @Controller
 public class SalaryRegisterController {
     private final SessionService sessionService;
-    private final SalaryRegisterService salaryRegisterService;;
+    private final SalaryRegisterService salaryRegisterService;
+    private final SalaryComponentService salaryComponentService;
     private static final Logger logger = LoggerFactory.getLogger(SalaryRegisterController.class);
 
-    public SalaryRegisterController(SessionService sessionService, SalaryRegisterService salaryRegisterService) {
+    public SalaryRegisterController(SessionService sessionService, SalaryRegisterService salaryRegisterService, SalaryComponentService salaryComponentService) {
         this.sessionService = sessionService;
         this.salaryRegisterService = salaryRegisterService;
+        this.salaryComponentService = salaryComponentService;
     }
 
     @GetMapping("/register")
@@ -35,6 +40,7 @@ public class SalaryRegisterController {
         if (!sessionService.isLoggedIn()) {
             return "redirect:/";
         }
+
         User user = sessionService.getErpUser();
         String sid = sessionService.getErpSid();
         List<SalaryRegister> registerList = salaryRegisterService.getSalaryRegister(sid,registerSearch);
@@ -53,5 +59,44 @@ public class SalaryRegisterController {
         model.addAttribute("totalRegister", totalRegister);
         model.addAttribute("user", user);
         return "page/hr/salary_register";
+    }
+
+
+    @GetMapping("/search_salary")
+    public String searchSalary(Model model, @ModelAttribute SalarySearchForm salarySearchForm) {
+        if (!sessionService.isLoggedIn()) {
+            return "redirect:/";
+        }
+        User user = sessionService.getErpUser();
+        String sid = sessionService.getErpSid();
+
+
+        List<SalaryComponent> salaryComponentList = salaryComponentService.getAllSalaryComponent(sid);
+        salarySearchForm.parseBigDecimals();
+
+        List<SalaryRegister> registerList = salaryRegisterService.getSalaryRegister(sid,new RegisterSearch());
+        if (salarySearchForm.getSigne()!=null) {
+            registerList = salaryRegisterService.filtreSalaryRegister(salarySearchForm,registerList);
+        }
+
+
+        List<String> columnNames = new ArrayList<>();
+
+        SalaryRegister totalRegister = null;
+        if (!registerList.isEmpty()) {
+            int i = 0;
+            for (String key : registerList.get(0).getExtras().keySet()) {
+                columnNames.add(Utils.snakeCaseToWords(key));
+            }
+            totalRegister =  registerList.get(registerList.size()-1);
+        }
+
+        model.addAttribute("columnNames", columnNames);
+        model.addAttribute("registerList", registerList);
+        model.addAttribute("totalRegister", totalRegister);
+        model.addAttribute("salarySearchForm", new SalarySearchForm());
+        model.addAttribute("salaryComponentList", salaryComponentList);
+        model.addAttribute("user", user);
+        return "page/hr/search_salary";
     }
 }
